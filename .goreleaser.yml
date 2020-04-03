@@ -29,12 +29,21 @@ archives:
 checksum:
   name_template: 'checksums.txt'
 
-snapshot:
-  name_template: "{{ .Tag }}-next"
-
 changelog:
   sort: asc
   filters:
     exclude:
     - '^docs:'
     - '^test:'
+
+nfpms:
+  - license: MIT
+    maintainer: Bitbull
+    description: Bitbull CLI
+    homepage: https://github.com/daaru00/bb-cli/
+    suggests:
+      - awscli
+      - session-manager-plugin
+    formats:
+      - rpm
+      - deb
