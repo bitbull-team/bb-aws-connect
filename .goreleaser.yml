@@ -1,9 +1,9 @@
 release:
 
 builds:
-- id: bb-pipeline
-  main: ./cmd/pipeline/main.go
-  binary: bb-pipeline
+- id: bb-cli
+  main: main.go
+  binary: bb-cli
   goos:
     - windows
     - darwin
@@ -15,7 +15,7 @@ builds:
 
 archives:
 - builds:
-  - bb-pipeline
+  - bb-cli
   replacements:
     darwin: Darwin
     linux: Linux
