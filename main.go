@@ -17,6 +17,7 @@ func main() {
 	app := &cli.App{
 		Name:        "bb-cli",
 		Description: "Bitbull CLI",
+		Version:     "VERSION", // this will be replace during build phase
 		Commands:    cmds,
 	}
 
