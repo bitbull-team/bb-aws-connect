@@ -2,6 +2,8 @@ package shelllib
 
 import (
 	"bufio"
+	"bytes"
+	"errors"
 	"fmt"
 	"os/exec"
 	"path/filepath"
@@ -9,10 +11,12 @@ import (
 
 // ExecuteCommand will execute a shell command
 func ExecuteCommand(name string, arg ...string) error {
+	var stderr bytes.Buffer
 	cmd := &exec.Cmd{
 		Path: name,
 		Args: append([]string{name}, arg...),
 	}
+	cmd.Stderr = &stderr
 	if filepath.Base(name) == name {
 		lp, err := exec.LookPath(name)
 		if err != nil {
@@ -30,7 +34,7 @@ func ExecuteCommand(name string, arg ...string) error {
 	scanner := bufio.NewScanner(cmdReader)
 	go func() {
 		for scanner.Scan() {
-			fmt.Printf("%s\n", scanner.Text())
+			fmt.Println(scanner.Text())
 		}
 	}()
 
@@ -41,7 +45,7 @@ func ExecuteCommand(name string, arg ...string) error {
 
 	err = cmd.Wait()
 	if err != nil {
-		return err
+		return errors.New(stderr.String())
 	}
 
 	return nil
