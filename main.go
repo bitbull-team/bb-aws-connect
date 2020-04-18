@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"aws"
 	"docker"
 
 	"github.com/urfave/cli/v2"
@@ -13,6 +14,7 @@ import (
 func main() {
 	cmds := []*cli.Command{}
 	cmds = append(cmds, docker.Commands()...)
+	cmds = append(cmds, aws.Commands()...)
 
 	cwd, _ := os.Getwd()
 	app := &cli.App{
@@ -30,13 +32,14 @@ func main() {
 		Before: func(c *cli.Context) error {
 			if c.String("cwd") != "" {
 				os.Chdir(c.String("cwd"))
-				cwd, err := os.Getwd()
-				if err == nil {
-					fmt.Println("Current directory is now: " + cwd)
+				_, err := os.Getwd()
+				if err != nil {
+					fmt.Println("Cannot change CWD: " + err.Error())
 				}
 			}
 			return nil
 		},
+		EnableBashCompletion: true,
 	}
 
 	err := app.Run(os.Args)
