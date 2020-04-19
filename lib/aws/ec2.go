@@ -14,15 +14,25 @@ type TagFilter struct {
 
 // Instace is a result of EC2ListInstances
 type Instace struct {
-	ID   string
-	Name string
-	IP   string
+	ID          string
+	Name        string
+	IP          string
+	ServiceType string
+	Environment string
+	ProjectName string
 }
 
 // EC2ListInstances return a list of available instance
 func EC2ListInstances(ses *session.Session, tags []TagFilter) ([]Instace, error) {
 	input := &ec2.DescribeInstancesInput{
-		Filters: make([]*ec2.Filter, 1),
+		Filters: []*ec2.Filter{
+			{
+				Name: aws.String("instance-state-name"),
+				Values: []*string{
+					aws.String("running"),
+				},
+			},
+		},
 	}
 
 	if tags != nil {
@@ -53,8 +63,31 @@ func EC2ListInstances(ses *session.Session, tags []TagFilter) ([]Instace, error)
 
 	for _, reservation := range result.Reservations {
 		for _, instance := range reservation.Instances {
+			var tagName string
+			var serviceName string
+			var envName string
+			var projectName string
+			for _, tag := range instance.Tags {
+				if *tag.Key == "Name" {
+					tagName = *tag.Value
+				}
+				if *tag.Key == "ServiceType" {
+					serviceName = *tag.Value
+				}
+				if *tag.Key == "Environment" {
+					envName = *tag.Value
+				}
+				if *tag.Key == "ProjectName" {
+					projectName = *tag.Value
+				}
+			}
 			formattedInstances = append(formattedInstances, Instace{
-				ID: *instance.InstanceId,
+				ID:          *instance.InstanceId,
+				IP:          *instance.PrivateIpAddress,
+				Name:        tagName,
+				ServiceType: serviceName,
+				Environment: envName,
+				ProjectName: projectName,
 			})
 		}
 	}

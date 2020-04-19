@@ -9,5 +9,5 @@ require (
 
 replace (
 	filesystemlib => ./../filesystem
-	shelllib => ./lib/shell
+	shelllib => ../shell
 )

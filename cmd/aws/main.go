@@ -6,32 +6,46 @@ import (
 
 // Commands - Return all commands
 func Commands() []*cli.Command {
+	globalFlags := []cli.Flag{
+		&cli.StringFlag{
+			Name:     "profile",
+			Aliases:  []string{"p"},
+			Usage:    "AWS profile name",
+			Required: true,
+		},
+		&cli.StringFlag{
+			Name:    "region",
+			Aliases: []string{"r"},
+			Usage:   "AWS region",
+			Value:   "eu-west-1",
+		},
+	}
+
 	return []*cli.Command{
 		{
 			Name: "aws",
-			Flags: []cli.Flag{
-				&cli.StringFlag{
-					Name:    "profile",
-					Aliases: []string{"p"},
-					Usage:   "AWS profile",
-				},
-				&cli.StringFlag{
-					Name:    "region",
-					Aliases: []string{"r"},
-					Usage:   "AWS region",
-					Value:   "eu-west-1",
-				},
-				&cli.StringFlag{
-					Name:    "env",
-					Aliases: []string{"e"},
-					Usage:   "Target environment",
-				},
-			},
 			Subcommands: []*cli.Command{
 				{
-					Name:   "ssm",
-					Usage:  "AWS profile",
-					Action: SSMListAvailableInstances,
+					Name:   "connect",
+					Usage:  "Connect to an EC2 instance using SSM session",
+					Action: SSMListAndStartSession,
+					Flags: append(globalFlags, []cli.Flag{
+						&cli.StringFlag{
+							Name:    "service",
+							Aliases: []string{"s"},
+							Usage:   "Service Type (example: bastion, frontend, varnish)",
+						},
+						&cli.StringFlag{
+							Name:    "env",
+							Aliases: []string{"e"},
+							Usage:   "Environment (example: test, stage, prod)",
+						},
+						&cli.StringFlag{
+							Name:    "instance",
+							Aliases: []string{"i"},
+							Usage:   "Instace ID (example: i-xxxxxxxxxxxxxxxxx)",
+						},
+					}...),
 				},
 			},
 		},

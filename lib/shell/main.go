@@ -5,8 +5,11 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"os"
 	"os/exec"
+	"os/signal"
 	"path/filepath"
+	"syscall"
 )
 
 // ExecuteCommand will execute a shell command
@@ -49,4 +52,40 @@ func ExecuteCommand(name string, arg ...string) error {
 	}
 
 	return nil
+}
+
+// ExecuteCommandForeground will execute command in foreground
+func ExecuteCommandForeground(name string, arg ...string) error {
+	rawCmd := exec.Command(name, arg...)
+	rawCmd.Stdin = os.Stdin
+	rawCmd.Stdout = os.Stdout
+	rawCmd.Stderr = os.Stderr
+
+	err := rawCmd.Start()
+	if err != nil {
+		return err
+	}
+
+	// Set up to capture Ctrl+C
+	sigChan := make(chan os.Signal, 2)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+
+	doneChan := make(chan struct{}, 2)
+
+	// Run Wait() in its own chan so we don't block
+	go func() {
+		err = rawCmd.Wait()
+		doneChan <- struct{}{}
+	}()
+	// Here we block until command is done
+	for {
+		select {
+		case s := <-sigChan:
+			// user typed Ctrl-C, most likley meant for ssm-session pass through
+			rawCmd.Process.Signal(s)
+		case <-doneChan:
+			// command is done
+			return err
+		}
+	}
 }
