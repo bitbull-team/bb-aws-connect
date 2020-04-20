@@ -45,6 +45,20 @@ func Commands() []*cli.Command {
 							Aliases: []string{"i"},
 							Usage:   "Instace ID (example: i-xxxxxxxxxxxxxxxxx)",
 						},
+						&cli.StringFlag{
+							Name:  "cwd",
+							Usage: "Current working directory (example: /var/www/)",
+						},
+						&cli.StringFlag{
+							Name:  "user",
+							Usage: "User to use in the session",
+							Value: "ssm-user",
+						},
+						&cli.StringFlag{
+							Name:  "shell",
+							Usage: "Shell used in session",
+							Value: "/bin/bash",
+						},
 					}...),
 				},
 			},

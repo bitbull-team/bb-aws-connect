@@ -89,7 +89,47 @@ func SSMStartSession(c *cli.Context) error {
 	region := c.String("region")
 	instanceID := c.String("instance")
 
+	// Additional arguments
+	cwd := c.String("cwd")
+	user := c.String("user")
+	shell := c.String("shell")
+
+	// Build arguments
+	args := []string{
+		"ssm", "start-session",
+		"--profile", profile,
+		"--region", region,
+		"--target", instanceID,
+		"--document-name", "AWS-StartInteractiveCommand",
+	}
+
+	// Build extra arguments
+	if cwd != "" || user != "" || shell != "" {
+		var command string
+
+		// Change CWD
+		if cwd != "" {
+			command = fmt.Sprintf("cd %s", cwd)
+		}
+
+		// Concatenate CWD and user/shell
+		if (user != "" || shell != "") && len(command) > 0 {
+			command += " && "
+		}
+
+		// Change user and shell
+		if user == "" && shell != "" {
+			command += shell
+		} else if user != "" && shell == "" {
+			command += fmt.Sprintf("sudo su %s", user)
+		} else if user != "" && shell != "" {
+			command += fmt.Sprintf("sudo su %s -s %s", user, shell)
+		}
+
+		args = append(args, "--parameters", fmt.Sprintf("command=\"%s\"", command))
+	}
+
 	// Start SSM session
-	shelllib.ExecuteCommandForeground("aws", "ssm", "start-session", "--profile", profile, "--region", region, "--target", instanceID)
+	shelllib.ExecuteCommandForeground("aws", args...)
 	return nil
 }

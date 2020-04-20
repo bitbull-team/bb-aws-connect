@@ -20,7 +20,7 @@ func main() {
 	app := &cli.App{
 		Name:        "bb-cli",
 		Description: "Bitbull CLI",
-		Version:     "VERSION", // this will be replace during build phase
+		Version:     "VERSION", // this will be overridden during build phase
 		Commands:    cmds,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
