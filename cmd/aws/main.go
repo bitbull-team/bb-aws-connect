@@ -26,9 +26,9 @@ func Commands() []*cli.Command {
 			Name: "aws",
 			Subcommands: []*cli.Command{
 				{
-					Name:   "connect",
+					Name:   "ssm:connect",
 					Usage:  "Connect to an EC2 instance using SSM session",
-					Action: SSMListAndStartSession,
+					Action: SSMListInstances,
 					Flags: append(globalFlags, []cli.Flag{
 						&cli.StringFlag{
 							Name:    "service",
@@ -58,6 +58,45 @@ func Commands() []*cli.Command {
 							Name:  "shell",
 							Usage: "Shell used in session",
 							Value: "/bin/bash",
+						},
+						&cli.StringFlag{
+							Name:  "command",
+							Usage: "Use a custom command as entrypoint",
+						},
+					}...),
+				},
+				{
+					Name:   "ecs:connect",
+					Usage:  "Connect to an ECS Task container",
+					Action: ECSListServices,
+					Flags: append(globalFlags, []cli.Flag{
+						&cli.StringFlag{
+							Name:    "cluster",
+							Aliases: []string{"c"},
+							Usage:   "Cluster Name",
+							Value:   "default",
+						},
+						&cli.StringFlag{
+							Name:    "service",
+							Aliases: []string{"s"},
+							Usage:   "Service name (example: my-service)",
+						},
+						&cli.StringFlag{
+							Name:    "task",
+							Aliases: []string{"t"},
+							Usage:   "Task ID (example: xxxxxxxxxxxxxxxxxxxx)",
+						},
+						&cli.StringFlag{
+							Name:   "container",
+							Hidden: true,
+						},
+						&cli.StringFlag{
+							Name:   "instance",
+							Hidden: true,
+						},
+						&cli.StringFlag{
+							Name:   "command",
+							Hidden: true,
 						},
 					}...),
 				},

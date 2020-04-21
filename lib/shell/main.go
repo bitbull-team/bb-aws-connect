@@ -12,7 +12,7 @@ import (
 	"syscall"
 )
 
-// ExecuteCommand will execute a shell command
+// ExecuteCommand execute a shell command
 func ExecuteCommand(name string, arg ...string) error {
 	var stderr bytes.Buffer
 	cmd := &exec.Cmd{
@@ -54,7 +54,7 @@ func ExecuteCommand(name string, arg ...string) error {
 	return nil
 }
 
-// ExecuteCommandForeground will execute command in foreground
+// ExecuteCommandForeground execute command in foreground
 func ExecuteCommandForeground(name string, arg ...string) error {
 	rawCmd := exec.Command(name, arg...)
 	rawCmd.Stdin = os.Stdin

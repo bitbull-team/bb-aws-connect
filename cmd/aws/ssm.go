@@ -11,20 +11,18 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-// SSMListAndStartSession will list instances to connect to
-func SSMListAndStartSession(c *cli.Context) error {
+// SSMListInstances list instances to connect to
+func SSMListInstances(c *cli.Context) error {
 	// Check if instance is provided
 	instanceID := c.String("instance")
 	if len(instanceID) != 0 {
 		// Start SSM session
-		c.Set("instance", instanceID)
 		return SSMStartSession(c)
 	}
 
 	// Create AWS session
-	profile := c.String("profile")
 	currentSession := session.Must(session.NewSessionWithOptions(session.Options{
-		Profile:           profile,
+		Profile:           c.String("profile"),
 		SharedConfigState: session.SharedConfigEnable,
 	}))
 
@@ -45,7 +43,7 @@ func SSMListAndStartSession(c *cli.Context) error {
 		})
 	}
 
-	// List availlable instance
+	// List available instance
 	instances, err := awslib.EC2ListInstances(currentSession, tagFilters)
 	if err != nil {
 		return cli.Exit("Error during EC2 instance list: "+err.Error(), -1)
@@ -82,17 +80,12 @@ func SSMListAndStartSession(c *cli.Context) error {
 	return SSMStartSession(c)
 }
 
-// SSMStartSession will connect to a instance
+// SSMStartSession connect to a instance
 func SSMStartSession(c *cli.Context) error {
 	// Get parameters
 	profile := c.String("profile")
 	region := c.String("region")
 	instanceID := c.String("instance")
-
-	// Additional arguments
-	cwd := c.String("cwd")
-	user := c.String("user")
-	shell := c.String("shell")
 
 	// Build arguments
 	args := []string{
@@ -103,29 +96,39 @@ func SSMStartSession(c *cli.Context) error {
 		"--document-name", "AWS-StartInteractiveCommand",
 	}
 
-	// Build extra arguments
-	if cwd != "" || user != "" || shell != "" {
-		var command string
+	// Check command
+	command := c.String("command")
+	if len(command) == 0 {
+		// Additional arguments
+		cwd := c.String("cwd")
+		user := c.String("user")
+		shell := c.String("shell")
 
-		// Change CWD
-		if cwd != "" {
-			command = fmt.Sprintf("cd %s", cwd)
+		// Build extra arguments
+		if cwd != "" || user != "" || shell != "" {
+			// Change CWD
+			if cwd != "" {
+				command = fmt.Sprintf("cd %s", cwd)
+			}
+
+			// Concatenate CWD and user/shell
+			if (user != "" || shell != "") && len(command) > 0 {
+				command += " && "
+			}
+
+			// Change user and shell
+			if user == "" && shell != "" {
+				command += shell
+			} else if user != "" && shell == "" {
+				command += fmt.Sprintf("sudo su %s", user)
+			} else if user != "" && shell != "" {
+				command += fmt.Sprintf("sudo su %s -s %s", user, shell)
+			}
 		}
+	}
 
-		// Concatenate CWD and user/shell
-		if (user != "" || shell != "") && len(command) > 0 {
-			command += " && "
-		}
-
-		// Change user and shell
-		if user == "" && shell != "" {
-			command += shell
-		} else if user != "" && shell == "" {
-			command += fmt.Sprintf("sudo su %s", user)
-		} else if user != "" && shell != "" {
-			command += fmt.Sprintf("sudo su %s -s %s", user, shell)
-		}
-
+	// Check if command is still 0 after checking cwd, user and shell
+	if len(command) != 0 {
 		args = append(args, "--parameters", fmt.Sprintf("command=\"%s\"", command))
 	}
 

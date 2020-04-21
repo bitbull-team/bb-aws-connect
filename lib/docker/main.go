@@ -7,7 +7,7 @@ import (
 	"shelllib"
 )
 
-// LoginToRepository will login to remote Docker repository
+// LoginToRepository login to remote Docker repository
 func LoginToRepository(repository string, username string, password string) error {
 	args := []string{
 		"login",

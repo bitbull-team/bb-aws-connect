@@ -30,8 +30,8 @@ func main() {
 			},
 		},
 		Before: func(c *cli.Context) error {
-			if c.String("cwd") != "" {
-				os.Chdir(c.String("cwd"))
+			if c.String("root") != "" {
+				os.Chdir(c.String("root"))
 				_, err := os.Getwd()
 				if err != nil {
 					fmt.Println("Cannot change CWD: " + err.Error())

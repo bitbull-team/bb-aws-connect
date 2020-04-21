@@ -4,7 +4,7 @@ import (
 	"os"
 )
 
-// FileExist will check if path is a regular file end exist
+// FileExist check if path is a regular file end exist
 func FileExist(filepath string) bool {
 	info, err := os.Stat(filepath)
 	if os.IsNotExist(err) || info.IsDir() {
@@ -13,7 +13,7 @@ func FileExist(filepath string) bool {
 	return true
 }
 
-// DirectoryExist will check if path is a regular directory end exist
+// DirectoryExist check if path is a regular directory end exist
 func DirectoryExist(filepath string) bool {
 	info, err := os.Stat(filepath)
 	if os.IsNotExist(err) || !info.IsDir() {

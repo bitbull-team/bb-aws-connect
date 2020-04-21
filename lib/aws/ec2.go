@@ -56,7 +56,7 @@ func EC2ListInstances(ses *session.Session, tags []TagFilter) ([]Instace, error)
 	// Create new EC2 client
 	ec2Svc := ec2.New(ses)
 	result, err := ec2Svc.DescribeInstances(input)
-	formattedInstances := make([]Instace, 0)
+	var formattedInstances []Instace
 	if err != nil {
 		return formattedInstances, err
 	}
