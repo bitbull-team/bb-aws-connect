@@ -95,8 +95,19 @@ func Commands() []*cli.Command {
 							Hidden: true,
 						},
 						&cli.StringFlag{
-							Name:   "command",
-							Hidden: true,
+							Name:    "workdir",
+							Aliases: []string{"w"},
+							Usage:   "Docker exec 'workdir' parameters (example: /app)",
+						},
+						&cli.StringFlag{
+							Name:    "user",
+							Aliases: []string{"u"},
+							Usage:   "Docker exec 'user' parameters (example: www-data)",
+						},
+						&cli.StringFlag{
+							Name:  "command",
+							Usage: "Use a custom command as entrypoint",
+							Value: "/bin/bash",
 						},
 					}...),
 				},

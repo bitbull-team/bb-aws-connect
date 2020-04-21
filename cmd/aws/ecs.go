@@ -181,6 +181,18 @@ func ECSListContainer(c *cli.Context) error {
 
 // ECSConnectToContainer connect to select container
 func ECSConnectToContainer(c *cli.Context) error {
-	c.Set("command", fmt.Sprintf("sudo docker exec -it %s /bin/bash", c.String("container")))
+	dockerExecCmd := "sudo docker exec"
+
+	user := c.String("user")
+	if len(user) > 0 {
+		dockerExecCmd += fmt.Sprintf(" --user %s", user)
+	}
+
+	workdir := c.String("workdir")
+	if len(workdir) > 0 {
+		dockerExecCmd += fmt.Sprintf(" --workdir %s", workdir)
+	}
+
+	c.Set("command", fmt.Sprintf("%s -it %s %s", dockerExecCmd, c.String("container"), c.String("command")))
 	return SSMStartSession(c)
 }
