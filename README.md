@@ -20,3 +20,7 @@ You can be able to execute file directly:
 ```bash
 ./bb-cli --help
 ```
+
+### For Mac Users
+
+Unlock CLI executable file going to "System Preference > Security and Privacy > General" and click on button "open anyway".
