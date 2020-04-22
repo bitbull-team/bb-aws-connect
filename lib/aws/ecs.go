@@ -8,7 +8,10 @@ import (
 
 // ECSService is a result of EC2ListInstances
 type ECSService struct {
-	Name string
+	Name         *string
+	DesiredCount *int64
+	PendingCount *int64
+	RunningCount *int64
 }
 
 // ECSListServices return a list of Service
@@ -22,26 +25,44 @@ func ECSListServices(ses *session.Session, cluster string) ([]ECSService, error)
 
 	// Create new ECS client and list services
 	ecsSvc := ecs.New(ses)
-	listResult, listErr := ecsSvc.ListServices(&ecs.ListServicesInput{
+	serviceArns := make([]*string, 0)
+	ecsSvc.ListServicesPages(&ecs.ListServicesInput{
 		Cluster: aws.String(cluster),
+	}, func(page *ecs.ListServicesOutput, lastPage bool) bool {
+		for _, serviceArn := range page.ServiceArns {
+			serviceArns = append(serviceArns, serviceArn)
+		}
+		return true // iterate over all pages
 	})
-	var formattedServices []ECSService
-	if listErr != nil {
-		return formattedServices, listErr
-	}
 
 	// Retrieve ECS services details
-	describeResult, describeErr := ecsSvc.DescribeServices(&ecs.DescribeServicesInput{
-		Cluster:  aws.String(cluster),
-		Services: listResult.ServiceArns,
-	})
-	if describeErr != nil {
-		return formattedServices, describeErr
+	var services []*ecs.Service
+	chunkSize := 10
+	for i := 0; i < len(serviceArns); i += chunkSize {
+		end := i + chunkSize
+
+		if end > len(serviceArns) {
+			end = len(serviceArns)
+		}
+
+		describeResult, describeErr := ecsSvc.DescribeServices(&ecs.DescribeServicesInput{
+			Cluster:  aws.String(cluster),
+			Services: serviceArns[i:end],
+		})
+		if describeErr != nil {
+			return make([]ECSService, 0), describeErr
+		}
+		services = append(services, describeResult.Services...)
 	}
 
-	for _, service := range describeResult.Services {
+	// Format service
+	var formattedServices []ECSService
+	for _, service := range services {
 		formattedServices = append(formattedServices, ECSService{
-			Name: *service.ServiceName,
+			Name:         service.ServiceName,
+			DesiredCount: service.DesiredCount,
+			PendingCount: service.PendingCount,
+			RunningCount: service.RunningCount,
 		})
 	}
 
@@ -75,6 +96,10 @@ func ECSListServiceTasks(ses *session.Session, cluster string, serviceName strin
 	var formattedTasks []ECSTask
 	if listErr != nil {
 		return formattedTasks, listErr
+	}
+
+	if len(listResult.TaskArns) == 0 {
+		return formattedTasks, nil
 	}
 
 	// Retrieve ECS tasks details

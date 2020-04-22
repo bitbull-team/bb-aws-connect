@@ -38,7 +38,7 @@ func ECSListServices(c *cli.Context) error {
 	// Build table
 	var options []string
 	for _, service := range services {
-		options = append(options, fmt.Sprintf("%s", service.Name))
+		options = append(options, fmt.Sprintf("%s", *service.Name))
 	}
 
 	// Ask selection
@@ -83,7 +83,7 @@ func ECSListTasks(c *cli.Context) error {
 		return cli.Exit("Error during ECS tasks list: "+err.Error(), -1)
 	}
 	if len(tasks) == 0 {
-		return cli.Exit("No tasks found", -1)
+		return cli.Exit("No tasks found for this service", -1)
 	}
 
 	// Build table
