@@ -48,11 +48,12 @@ func Commands() []*cli.Command {
 						&cli.StringFlag{
 							Name:  "cwd",
 							Usage: "Current working directory (example: /var/www/)",
+							Value: "/",
 						},
 						&cli.StringFlag{
 							Name:  "user",
 							Usage: "User to use in the session",
-							Value: "ssm-user",
+							Value: "root",
 						},
 						&cli.StringFlag{
 							Name:  "shell",
