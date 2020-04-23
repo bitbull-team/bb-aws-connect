@@ -4,7 +4,6 @@ import (
 	"awslib"
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -36,29 +35,34 @@ func ECSListServices(c *cli.Context) error {
 	}
 
 	// Build table
+	header := fmt.Sprintf(
+		"%-40s\t%-6s\t%-6s",
+		"Name", "Desired", "Running",
+	)
 	var options []string
 	for _, service := range services {
-		options = append(options, fmt.Sprintf("%s", *service.Name))
+		options = append(options, fmt.Sprintf(
+			"%-40s\t%-6s\t%-6s",
+			*service.Name, strconv.FormatInt(*service.DesiredCount, 10), strconv.FormatInt(*service.RunningCount, 10),
+		))
 	}
-
 	// Ask selection
-	serviceSelected := ""
+	serviceSelectedIndex := -1
 	prompt := &survey.Select{
-		Message:  "Select a service:",
+		Message:  "Select a service: \n\n  " + header + "\n",
 		Options:  options,
 		PageSize: 15,
 	}
-	survey.AskOne(prompt, &serviceSelected)
+	survey.AskOne(prompt, &serviceSelectedIndex)
 
 	// Check response
-	serviceName = strings.Split(serviceSelected, "\t")[0]
-	if len(serviceName) == 0 {
-		fmt.Println("No service selected")
+	if serviceSelectedIndex == -1 {
+		fmt.Println("\nNo service selected")
 		return nil
 	}
 
 	// Set service in context
-	c.Set("service", serviceName)
+	c.Set("service", *services[serviceSelectedIndex].Name)
 	return ECSListTasks(c)
 }
 
@@ -88,14 +92,14 @@ func ECSListTasks(c *cli.Context) error {
 
 	// Build table
 	header := fmt.Sprintf(
-		"%s\t%s\t%s\t%s\t%s",
-		"Task Definition Family          ", "Revision",
-		"Status  ", "Health  ", "Instance ID",
+		"%-35s\t%-8s\t%-8s\t%-8s\t%s",
+		"Task Definition Family", "Revision",
+		"Status", "Health", "Instance ID",
 	)
 	var options []string
 	for _, task := range tasks {
 		options = append(options, fmt.Sprintf(
-			"%s\t%s         \t%s  \t%s  \t%s",
+			"%-35s\t%-8s\t%-8s\t%-8s\t%s",
 			*task.TaskDefinition.Family, strconv.FormatInt(*task.TaskDefinition.Revision, 10),
 			*task.Status, *task.HealthStatus, *task.ContainerInstance.Ec2InstanceId,
 		))
@@ -112,7 +116,7 @@ func ECSListTasks(c *cli.Context) error {
 
 	// Check response
 	if taskSelectedIndex == -1 {
-		fmt.Println("No task selected")
+		fmt.Println("\nNo task selected")
 		return nil
 	}
 
@@ -148,13 +152,13 @@ func ECSListContainer(c *cli.Context) error {
 
 	// Build table
 	header := fmt.Sprintf(
-		"%s\t%s\t%s\t%s",
-		"Container Name          ", "Container ID", "Status", "Image",
+		"%-35s\t%-12s\t%8s\t%s",
+		"Container Name", "Container ID", "Status", "Image",
 	)
 	var options []string
 	for _, container := range containers {
 		options = append(options, fmt.Sprintf(
-			"%s\t%s\t%s\t%s",
+			"%-35s\t%-12s\t%8s\t%s",
 			*container.Name, string(*container.RuntimeId)[0:12], *container.LastStatus, *container.Image,
 		))
 	}
@@ -170,7 +174,7 @@ func ECSListContainer(c *cli.Context) error {
 
 	// Check response
 	if containerSelectedIndex == -1 {
-		fmt.Println("No container selected")
+		fmt.Println("\nNo container selected")
 		return nil
 	}
 

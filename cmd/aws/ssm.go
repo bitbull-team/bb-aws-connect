@@ -53,10 +53,10 @@ func SSMListInstances(c *cli.Context) error {
 	}
 
 	// Build table
-	header := fmt.Sprintf("%s\t%s\t%s\t%s", "Instace ID    ", "IP address", "Environment", "ServiceType")
+	header := fmt.Sprintf("%-20s\t%-15s\t%s\t%s", "Instace ID", "IP address", "Environment", "ServiceType")
 	var options []string
 	for _, instance := range instances {
-		options = append(options, fmt.Sprintf("%s\t%s\t%s    \t%s", instance.ID, instance.IP, instance.Environment, instance.ServiceType))
+		options = append(options, fmt.Sprintf("%-20s\t%-15s\t%-8s\t%s", instance.ID, instance.IP, instance.Environment, instance.ServiceType))
 	}
 
 	// Ask selection
@@ -71,7 +71,7 @@ func SSMListInstances(c *cli.Context) error {
 	// Check response
 	instanceID = strings.Split(instanceSelected, "\t")[0]
 	if len(instanceID) == 0 {
-		fmt.Println("No instances selected")
+		fmt.Println("\nNo instances selected")
 		return nil
 	}
 
