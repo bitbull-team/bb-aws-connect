@@ -54,6 +54,7 @@ func ECSListServices(c *cli.Context) error {
 		PageSize: 15,
 	}
 	survey.AskOne(prompt, &serviceSelectedIndex)
+	fmt.Println("")
 
 	// Check response
 	if serviceSelectedIndex == -1 {
@@ -113,6 +114,7 @@ func ECSListTasks(c *cli.Context) error {
 		PageSize: 15,
 	}
 	survey.AskOne(prompt, &taskSelectedIndex)
+	fmt.Println("")
 
 	// Check response
 	if taskSelectedIndex == -1 {
@@ -171,6 +173,7 @@ func ECSListContainer(c *cli.Context) error {
 		PageSize: 15,
 	}
 	survey.AskOne(prompt, &containerSelectedIndex)
+	fmt.Println("")
 
 	// Check response
 	if containerSelectedIndex == -1 {

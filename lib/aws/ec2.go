@@ -14,12 +14,12 @@ type TagFilter struct {
 
 // Instace is a result of EC2ListInstances
 type Instace struct {
-	ID          string
-	Name        string
-	IP          string
-	ServiceType string
-	Environment string
-	ProjectName string
+	ID          *string
+	Name        *string
+	IP          *string
+	ServiceType *string
+	Environment *string
+	ProjectName *string
 }
 
 // EC2ListInstances return a list of available instance
@@ -63,10 +63,10 @@ func EC2ListInstances(ses *session.Session, tags []TagFilter) ([]Instace, error)
 
 	for _, reservation := range result.Reservations {
 		for _, instance := range reservation.Instances {
-			var tagName string
-			var serviceName string
-			var envName string
-			var projectName string
+			tagName := ""
+			serviceName := ""
+			envName := ""
+			projectName := ""
 			for _, tag := range instance.Tags {
 				if *tag.Key == "Name" {
 					tagName = *tag.Value
@@ -82,12 +82,12 @@ func EC2ListInstances(ses *session.Session, tags []TagFilter) ([]Instace, error)
 				}
 			}
 			formattedInstances = append(formattedInstances, Instace{
-				ID:          *instance.InstanceId,
-				IP:          *instance.PrivateIpAddress,
-				Name:        tagName,
-				ServiceType: serviceName,
-				Environment: envName,
-				ProjectName: projectName,
+				ID:          instance.InstanceId,
+				IP:          instance.PrivateIpAddress,
+				Name:        &tagName,
+				ServiceType: &serviceName,
+				Environment: &envName,
+				ProjectName: &projectName,
 			})
 		}
 	}

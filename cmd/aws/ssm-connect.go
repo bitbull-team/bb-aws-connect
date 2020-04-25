@@ -4,15 +4,14 @@ import (
 	"awslib"
 	"fmt"
 	"shelllib"
-	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/urfave/cli/v2"
 )
 
-// SSMListInstances list instances to connect to
-func SSMListInstances(c *cli.Context) error {
+// SSMSelectInstance list instances to connect to
+func SSMSelectInstance(c *cli.Context) error {
 	// Check if instance is provided
 	instanceID := c.String("instance")
 	if len(instanceID) != 0 {
@@ -56,27 +55,27 @@ func SSMListInstances(c *cli.Context) error {
 	header := fmt.Sprintf("%-20s\t%-15s\t%s\t%s", "Instace ID", "IP address", "Environment", "ServiceType")
 	var options []string
 	for _, instance := range instances {
-		options = append(options, fmt.Sprintf("%-20s\t%-15s\t%-8s\t%s", instance.ID, instance.IP, instance.Environment, instance.ServiceType))
+		options = append(options, fmt.Sprintf("%-20s\t%-15s\t%-8s\t%s", *instance.ID, *instance.IP, *instance.Environment, *instance.ServiceType))
 	}
 
 	// Ask selection
-	instanceSelected := ""
+	instanceSelectedIndex := -1
 	prompt := &survey.Select{
 		Message:  "Select an instance: \n\n  " + header + "\n",
 		Options:  options,
 		PageSize: 15,
 	}
-	survey.AskOne(prompt, &instanceSelected)
+	survey.AskOne(prompt, &instanceSelectedIndex)
+	fmt.Println("")
 
 	// Check response
-	instanceID = strings.Split(instanceSelected, "\t")[0]
-	if len(instanceID) == 0 {
-		fmt.Println("\nNo instances selected")
+	if instanceSelectedIndex == -1 {
+		fmt.Println("\nNo instance selected")
 		return nil
 	}
 
 	// Start SSM session
-	c.Set("instance", instanceID)
+	c.Set("instance", *instances[instanceSelectedIndex].ID)
 	return SSMStartSession(c)
 }
 

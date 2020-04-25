@@ -8,10 +8,9 @@ import (
 func Commands() []*cli.Command {
 	globalFlags := []cli.Flag{
 		&cli.StringFlag{
-			Name:     "profile",
-			Aliases:  []string{"p"},
-			Usage:    "AWS profile name",
-			Required: true,
+			Name:    "profile",
+			Aliases: []string{"p"},
+			Usage:   "AWS profile name",
 		},
 		&cli.StringFlag{
 			Name:    "region",
@@ -28,7 +27,7 @@ func Commands() []*cli.Command {
 				{
 					Name:   "ssm:connect",
 					Usage:  "Connect to an EC2 instance using SSM session",
-					Action: SSMListInstances,
+					Action: SSMSelectInstance,
 					Flags: append(globalFlags, []cli.Flag{
 						&cli.StringFlag{
 							Name:    "service",
@@ -63,6 +62,36 @@ func Commands() []*cli.Command {
 						&cli.StringFlag{
 							Name:  "command",
 							Usage: "Use a custom command as entrypoint",
+						},
+					}...),
+				},
+				{
+					Name:   "ssm:run",
+					Usage:  "Run command to EC2 instances using a SSM command",
+					Action: SSMSelectInstances,
+					Flags: append(globalFlags, []cli.Flag{
+						&cli.StringFlag{
+							Name:    "service",
+							Aliases: []string{"s"},
+							Usage:   "Service Type (example: bastion, frontend, varnish)",
+						},
+						&cli.StringFlag{
+							Name:    "env",
+							Aliases: []string{"e"},
+							Usage:   "Environment (example: test, stage, prod)",
+						},
+						&cli.StringSliceFlag{
+							Name:    "instance",
+							Aliases: []string{"i"},
+							Usage:   "Instace ID (example: i-xxxxxxxxxxxxxxxxx)",
+						},
+						&cli.StringFlag{
+							Name:  "command",
+							Usage: "Command to execute (example: \"ls -al\")",
+						},
+						&cli.StringFlag{
+							Name:  "file",
+							Usage: "Script file path to execute (example: ./my-script.sh)",
 						},
 					}...),
 				},
