@@ -16,7 +16,7 @@ type NPM struct {
 func NewNPM(rootPath string) *NPM {
 	app := new(NPM)
 	app.rootPath = rootPath
-	app.config = configlib.NewConfig(ConfigFileName)
+	app.config = configlib.NewConfig("")
 	return app
 }
 

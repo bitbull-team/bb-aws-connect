@@ -7,7 +7,8 @@ import (
 
 // Config contain CLI configuration
 type Config struct {
-	AppType string `yaml:"appType" json:"appType"`
+	App ApplicationConfig `yaml:"app" json:"app"`
+	AWS AWSConfig         `yaml:"aws" json:"aws"`
 }
 
 // Provider load configuration
@@ -22,6 +23,10 @@ type Parser interface {
 
 // NewConfig create a new Config
 func NewConfig(path string) *Config {
+	if len(path) == 0 {
+		path = ".bb-cli.yml"
+	}
+
 	url, _ := url.Parse(path)
 	extension := filepath.Ext(path)
 

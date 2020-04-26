@@ -11,7 +11,7 @@ type GO struct {
 func NewGO(rootPath string) *GO {
 	app := new(GO)
 	app.rootPath = rootPath
-	app.config = configlib.NewConfig(ConfigFileName)
+	app.config = configlib.NewConfig("")
 	return app
 }
 

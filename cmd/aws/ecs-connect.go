@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"github.com/AlecAivazis/survey/v2"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/urfave/cli/v2"
 )
 
@@ -20,10 +19,7 @@ func ECSListServices(c *cli.Context) error {
 	}
 
 	// Create AWS session
-	currentSession := session.Must(session.NewSessionWithOptions(session.Options{
-		Profile:           c.String("profile"),
-		SharedConfigState: session.SharedConfigEnable,
-	}))
+	currentSession := CreateAWSSession(c)
 
 	// List available service
 	services, err := awslib.ECSListServices(currentSession, c.String("cluster"))
@@ -77,10 +73,7 @@ func ECSListTasks(c *cli.Context) error {
 	}
 
 	// Create AWS session
-	currentSession := session.Must(session.NewSessionWithOptions(session.Options{
-		Profile:           c.String("profile"),
-		SharedConfigState: session.SharedConfigEnable,
-	}))
+	currentSession := CreateAWSSession(c)
 
 	// List available service
 	tasks, err := awslib.ECSListServiceTasks(currentSession, c.String("cluster"), c.String("service"))
@@ -138,10 +131,7 @@ func ECSListContainer(c *cli.Context) error {
 	}
 
 	// Create AWS session
-	currentSession := session.Must(session.NewSessionWithOptions(session.Options{
-		Profile:           c.String("profile"),
-		SharedConfigState: session.SharedConfigEnable,
-	}))
+	currentSession := CreateAWSSession(c)
 
 	// List availables service
 	containers, err := awslib.ECSListTaskContainers(currentSession, c.String("cluster"), c.String("task"))

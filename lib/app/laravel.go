@@ -14,7 +14,7 @@ type Laravel struct {
 func NewLaravel(rootPath string) *Laravel {
 	app := new(Laravel)
 	app.rootPath = rootPath
-	app.config = configlib.NewConfig(ConfigFileName)
+	app.config = configlib.NewConfig("")
 	return app
 }
 

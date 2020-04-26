@@ -14,7 +14,7 @@ type Magento2 struct {
 func NewMagento2(rootPath string) *Magento2 {
 	app := new(Magento2)
 	app.rootPath = rootPath
-	app.config = configlib.NewConfig(ConfigFileName)
+	app.config = configlib.NewConfig("")
 	return app
 }
 

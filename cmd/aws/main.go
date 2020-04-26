@@ -1,8 +1,37 @@
 package aws
 
 import (
+	"configlib"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/urfave/cli/v2"
 )
+
+// CreateAWSSession return a new AWS client session
+func CreateAWSSession(c *cli.Context) *session.Session {
+	config := configlib.NewConfig("")
+
+	profile := c.String("profile")
+	if len(profile) == 0 {
+		profile = config.AWS.Profile
+	}
+
+	region := c.String("region")
+	if len(region) == 0 && len(config.AWS.Region) != 0 {
+		region = config.AWS.Region
+	} else {
+		region = "eu-west-1"
+	}
+
+	return session.Must(session.NewSessionWithOptions(session.Options{
+		Profile:           profile,
+		SharedConfigState: session.SharedConfigEnable,
+		Config: aws.Config{
+			Region: aws.String(region),
+		},
+	}))
+}
 
 // Commands - Return all commands
 func Commands() []*cli.Command {
@@ -16,7 +45,6 @@ func Commands() []*cli.Command {
 			Name:    "region",
 			Aliases: []string{"r"},
 			Usage:   "AWS region",
-			Value:   "eu-west-1",
 		},
 	}
 

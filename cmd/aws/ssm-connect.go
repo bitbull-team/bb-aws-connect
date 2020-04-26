@@ -6,7 +6,6 @@ import (
 	"shelllib"
 
 	"github.com/AlecAivazis/survey/v2"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/urfave/cli/v2"
 )
 
@@ -20,10 +19,7 @@ func SSMSelectInstance(c *cli.Context) error {
 	}
 
 	// Create AWS session
-	currentSession := session.Must(session.NewSessionWithOptions(session.Options{
-		Profile:           c.String("profile"),
-		SharedConfigState: session.SharedConfigEnable,
-	}))
+	currentSession := CreateAWSSession(c)
 
 	// Build filters
 	var tagFilters []awslib.TagFilter

@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/urfave/cli/v2"
 )
 
@@ -22,10 +21,7 @@ func SSMSelectInstances(c *cli.Context) error {
 	}
 
 	// Create AWS session
-	currentSession := session.Must(session.NewSessionWithOptions(session.Options{
-		Profile:           c.String("profile"),
-		SharedConfigState: session.SharedConfigEnable,
-	}))
+	currentSession := CreateAWSSession(c)
 
 	// Build filters
 	var tagFilters []awslib.TagFilter
@@ -132,10 +128,7 @@ func SSMRunCommand(c *cli.Context) error {
 	}
 
 	// Create AWS session
-	currentSession := session.Must(session.NewSessionWithOptions(session.Options{
-		Profile:           c.String("profile"),
-		SharedConfigState: session.SharedConfigEnable,
-	}))
+	currentSession := CreateAWSSession(c)
 
 	// List available service
 	commandID, err := awslib.SSMExecuteCommand(

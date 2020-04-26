@@ -14,7 +14,7 @@ type MagentoWordpress struct {
 func NewMagentoWordpress(rootPath string) *MagentoWordpress {
 	app := new(MagentoWordpress)
 	app.rootPath = rootPath
-	app.config = configlib.NewConfig(ConfigFileName)
+	app.config = configlib.NewConfig("")
 	return app
 }
 

@@ -6,9 +6,6 @@ import (
 	"fmt"
 )
 
-// ConfigFileName contain the default config file name
-const ConfigFileName = ".bb-cli.yml"
-
 // ApplicationInterface is the base application type
 type ApplicationInterface interface {
 	GetPublicPath() string
@@ -53,11 +50,11 @@ func (Application) Build() error {
 
 // NewApplication create an Application struct
 func NewApplication(rootPath string) ApplicationInterface {
-	config := configlib.NewConfig(ConfigFileName)
+	config := configlib.NewConfig("")
 
 	// Check if config override app type
-	if len(config.AppType) != 0 {
-		switch config.AppType {
+	if len(config.App.Type) != 0 {
+		switch config.App.Type {
 		case "wordpress":
 			return *NewWordpress(rootPath)
 		case "magento":
@@ -151,6 +148,6 @@ func NewApplication(rootPath string) ApplicationInterface {
 
 	var app Application
 	app.rootPath = rootPath
-	app.config = configlib.NewConfig(ConfigFileName)
+	app.config = configlib.NewConfig("")
 	return app
 }

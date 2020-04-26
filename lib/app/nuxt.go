@@ -11,7 +11,7 @@ type Nuxt struct {
 func NewNuxt(rootPath string) *Nuxt {
 	app := new(Nuxt)
 	app.rootPath = rootPath
-	app.config = configlib.NewConfig(ConfigFileName)
+	app.config = configlib.NewConfig("")
 	return app
 }
 
