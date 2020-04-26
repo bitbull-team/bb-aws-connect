@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"app"
 	"aws"
 	"docker"
 
@@ -15,6 +16,7 @@ func main() {
 	cmds := []*cli.Command{}
 	cmds = append(cmds, docker.Commands()...)
 	cmds = append(cmds, aws.Commands()...)
+	cmds = append(cmds, app.Commands()...)
 
 	cwd, _ := os.Getwd()
 	app := &cli.App{
@@ -24,9 +26,9 @@ func main() {
 		Commands:    cmds,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:  "cwd",
+				Name:  "root",
 				Value: cwd,
-				Usage: "Current working directory",
+				Usage: "Change current working directory",
 			},
 		},
 		Before: func(c *cli.Context) error {

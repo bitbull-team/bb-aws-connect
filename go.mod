@@ -10,14 +10,20 @@ require (
 	shelllib v0.0.0
 	aws v0.0.0
 	awslib v0.0.0
+	app v0.0.0
+	applib v0.0.0
+	configlib v0.0.0
 )
 
 replace (
 	docker => ./cmd/docker
 	aws => ./cmd/aws
+	app => ./cmd/app
 
 	awslib => ./lib/aws
 	dockerlib => ./lib/docker
 	filesystemlib => ./lib/filesystem
 	shelllib => ./lib/shell
+	applib => ./lib/app
+	configlib => ./lib/config
 )
