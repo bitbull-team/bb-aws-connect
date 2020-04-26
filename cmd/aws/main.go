@@ -66,9 +66,10 @@ func Commands() []*cli.Command {
 					}...),
 				},
 				{
-					Name:   "ssm:run",
-					Usage:  "Run command to EC2 instances using a SSM command",
-					Action: SSMSelectInstances,
+					Name:      "ssm:run",
+					Usage:     "Run command to EC2 instances using a SSM command",
+					ArgsUsage: "[command to execute]",
+					Action:    SSMSelectInstances,
 					Flags: append(globalFlags, []cli.Flag{
 						&cli.StringFlag{
 							Name:    "service",
@@ -86,10 +87,6 @@ func Commands() []*cli.Command {
 							Usage:   "Instace ID (example: i-xxxxxxxxxxxxxxxxx)",
 						},
 						&cli.StringFlag{
-							Name:  "command",
-							Usage: "Command to execute (example: \"ls -al\")",
-						},
-						&cli.StringFlag{
 							Name:  "file",
 							Usage: "Script file path to execute (example: ./my-script.sh)",
 						},
@@ -101,10 +98,11 @@ func Commands() []*cli.Command {
 					Action: ECSListServices,
 					Flags: append(globalFlags, []cli.Flag{
 						&cli.StringFlag{
-							Name:    "cluster",
-							Aliases: []string{"c"},
-							Usage:   "Cluster Name",
-							Value:   "default",
+							Name:     "cluster",
+							Aliases:  []string{"c"},
+							Usage:    "Cluster Name",
+							Value:    "default",
+							Required: true,
 						},
 						&cli.StringFlag{
 							Name:    "service",

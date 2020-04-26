@@ -87,9 +87,14 @@ func SSMSelectInstances(c *cli.Context) error {
 // SSMRunCommand execute command to remote instance
 func SSMRunCommand(c *cli.Context) error {
 	// Check command
-	command := c.String("command")
 	scriptFile := c.String("file")
+	var command string
 	var commandRows []string
+
+	// Check command from first argument
+	if len(command) == 0 && len(scriptFile) == 0 && c.Args().Present() {
+		command = c.Args().First()
+	}
 
 	// Ask command
 	if len(command) == 0 && len(scriptFile) == 0 {

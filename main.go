@@ -18,6 +18,31 @@ func main() {
 	cmds = append(cmds, aws.Commands()...)
 	cmds = append(cmds, app.Commands()...)
 
+	cli.VersionPrinter = func(c *cli.Context) {
+		fmt.Println("" +
+			"		                                               \n" +
+			"                       ``````                     \n" +
+			"                        ```````                   \n" +
+			"                         ````````````:NMMMMMMMd+.`\n" +
+			"                         `.o:.````````oMMMMMMMMMm`\n" +
+			"                       ```:Nmh+.```````MMMMMMMMMM`\n" +
+			"`                     ````.-.``````````MMMMMMMMMM`\n" +
+			"``               .-/sy+:-.```````````.yMMMMMMMMMM`\n" +
+			" `            -ohmNMMMMMMmdhyso+++oshNMMMMMMMMMMd`\n" +
+			" ```       ```dMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMdos`\n" +
+			" ```  ```````+MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMmoyNM`\n" +
+			" ```````````oNMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMmmmmd`\n" +
+			" ````````./dMMMMMMMMMMMMMMMMMMdhhyyso++/::--...`` \n" +
+			" ``:://ohmMMMMMMMMMMMMMMMMMMMs``                  \n" +
+			"  `NNMMMMMMMMMMMMMMMMmMMMMMMo`                    \n" +
+			"  `dMdyyMMm++/::sMM/.`mMMMMo`                     \n" +
+			"  `sM+`.MM+     .MM.``dMMMo`                      \n" +
+			"  `/M+`.MM.     `hM.``dMMo`                       \n" +
+			"   .+-``+/`     `-+` `/+/`\n" +
+			"      ")
+		fmt.Fprintf(c.App.Writer, "Bitbull CLI %s\n", c.App.Version)
+	}
+
 	cwd, _ := os.Getwd()
 	app := &cli.App{
 		Name:        "bb-cli",
