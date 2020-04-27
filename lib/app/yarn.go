@@ -16,7 +16,12 @@ type YARN struct {
 func NewYARN(rootPath string) *YARN {
 	app := new(YARN)
 	app.rootPath = rootPath
-	app.config = configlib.NewConfig("")
+
+	// Create config object
+	var config Config
+	configlib.LoadConfig("", &config)
+	app.config = &config
+
 	return app
 }
 

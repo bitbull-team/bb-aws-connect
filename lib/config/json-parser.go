@@ -8,8 +8,8 @@ type JSONParser struct {
 }
 
 // Parse convert string into config object
-func (parser JSONParser) Parse(config *Config) error {
-	err := json.Unmarshal([]byte(parser.content), &config)
+func (parser JSONParser) Parse(config interface{}) error {
+	err := json.Unmarshal([]byte(parser.content), config)
 	if err != nil {
 		return err
 	}

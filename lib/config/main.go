@@ -1,15 +1,13 @@
 package configlib
 
 import (
+	"errors"
 	"net/url"
 	"path/filepath"
 )
 
 // Config contain CLI configuration
-type Config struct {
-	App ApplicationConfig `yaml:"app" json:"app"`
-	AWS AWSConfig         `yaml:"aws" json:"aws"`
-}
+type Config struct{}
 
 // Provider load configuration
 type Provider interface {
@@ -18,11 +16,11 @@ type Provider interface {
 
 // Parser parse content
 type Parser interface {
-	Parse(*Config) error
+	Parse(config interface{}) error
 }
 
-// NewConfig create a new Config
-func NewConfig(path string) *Config {
+// LoadConfig load config into existing object
+func LoadConfig(path string, config interface{}) error {
 	if len(path) == 0 {
 		path = ".bb-cli.yml"
 	}
@@ -40,10 +38,9 @@ func NewConfig(path string) *Config {
 	}
 
 	// Load config
-	config := new(Config)
 	content, errLoad := provider.Load()
 	if errLoad != nil {
-		return config
+		return errLoad
 	}
 
 	var parser Parser
@@ -52,19 +49,17 @@ func NewConfig(path string) *Config {
 	switch extension {
 	case ".yml":
 		parser = NewYAMLParser(content)
-		break
 	case ".json":
 		parser = NewJSONParser(content)
-		break
 	default:
-		return config
+		return errors.New("No parser found for config file extension " + extension)
 	}
 
 	// Parse content
 	errParse := parser.Parse(config)
 	if errParse != nil {
-		return config
+		return errParse
 	}
 
-	return config
+	return nil
 }

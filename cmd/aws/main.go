@@ -8,9 +8,18 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+// Config is struct for AWS
+type Config struct {
+	AWS struct {
+		Profile string
+		Region  string
+	}
+}
+
 // CreateAWSSession return a new AWS client session
 func CreateAWSSession(c *cli.Context) *session.Session {
-	config := configlib.NewConfig("")
+	var config Config
+	configlib.LoadConfig("", &config)
 
 	// Check for AWS profile
 	profile := c.String("profile")

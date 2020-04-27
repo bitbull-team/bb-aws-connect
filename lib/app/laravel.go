@@ -5,6 +5,11 @@ import (
 	"path"
 )
 
+// LaravelConfig is struct for laravel application config
+type LaravelConfig struct {
+	Key string
+}
+
 // Laravel application
 type Laravel struct {
 	Composer
@@ -14,7 +19,12 @@ type Laravel struct {
 func NewLaravel(rootPath string) *Laravel {
 	app := new(Laravel)
 	app.rootPath = rootPath
-	app.config = configlib.NewConfig("")
+
+	// Create config object
+	var config Config
+	configlib.LoadConfig("", &config)
+	app.config = &config
+
 	return app
 }
 

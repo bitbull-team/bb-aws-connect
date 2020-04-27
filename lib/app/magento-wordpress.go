@@ -5,6 +5,14 @@ import (
 	"path"
 )
 
+// MagentoWordpressConfig is struct for Magento&Wordpress application config
+type MagentoWordpressConfig struct {
+	Config
+
+	Magento   MagentoConfig
+	Wordpress WordpressConfig
+}
+
 // MagentoWordpress application
 type MagentoWordpress struct {
 	Composer
@@ -14,7 +22,7 @@ type MagentoWordpress struct {
 func NewMagentoWordpress(rootPath string) *MagentoWordpress {
 	app := new(MagentoWordpress)
 	app.rootPath = rootPath
-	app.config = configlib.NewConfig("")
+	configlib.LoadConfig("", &app.config)
 	return app
 }
 

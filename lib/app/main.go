@@ -6,11 +6,24 @@ import (
 	"fmt"
 )
 
+// Config is struct for application config
+type Config struct {
+	App struct {
+		Type       string
+		Env        string
+		PublicPath string
+	}
+
+	Magento   MagentoConfig
+	Wordpress WordpressConfig
+	Laravel   LaravelConfig
+}
+
 // ApplicationInterface is the base application type
 type ApplicationInterface interface {
 	GetPublicPath() string
 	GetType() string
-	GetConfig() *configlib.Config
+	GetConfig() *Config
 	Install() error
 	Build() error
 }
@@ -18,7 +31,7 @@ type ApplicationInterface interface {
 // Application is the base application type
 type Application struct {
 	rootPath string
-	config   *configlib.Config
+	config   *Config
 }
 
 // GetPublicPath return the public path
@@ -32,7 +45,7 @@ func (Application) GetType() string {
 }
 
 // GetConfig load config property
-func (app Application) GetConfig() *configlib.Config {
+func (app Application) GetConfig() *Config {
 	return app.config
 }
 
@@ -50,7 +63,8 @@ func (Application) Build() error {
 
 // NewApplication create an Application struct
 func NewApplication(rootPath string) ApplicationInterface {
-	config := configlib.NewConfig("")
+	var config Config
+	configlib.LoadConfig("", &config)
 
 	// Check if config override app type
 	if len(config.App.Type) != 0 {
@@ -91,6 +105,11 @@ func NewApplication(rootPath string) ApplicationInterface {
 		return *NewMagento(rootPath)
 	}
 
+	if filesystemlib.FileExist("go.mod") {
+		return *NewGO(rootPath)
+	}
+
+	// Elaborate composer.json dependencies
 	if filesystemlib.FileExist("composer.json") {
 		composer, _ := filesystemlib.LoadComposerFile("composer.json")
 
@@ -123,6 +142,7 @@ func NewApplication(rootPath string) ApplicationInterface {
 		}
 	}
 
+	// Elaborate package.json dependencies
 	if filesystemlib.FileExist("package.json") {
 		npm, _ := filesystemlib.LoadNPMPackageFile("package.json")
 
@@ -131,9 +151,7 @@ func NewApplication(rootPath string) ApplicationInterface {
 		}
 	}
 
-	if filesystemlib.FileExist("go.mod") {
-		return *NewGO(rootPath)
-	}
+	// Defaults for composer and package.json
 
 	if filesystemlib.FileExist("composer.json") {
 		return *NewComposer(rootPath)
@@ -146,8 +164,10 @@ func NewApplication(rootPath string) ApplicationInterface {
 		return *NewNPM(rootPath)
 	}
 
+	// Base application
 	var app Application
 	app.rootPath = rootPath
-	app.config = configlib.NewConfig("")
+	app.config = &config
+
 	return app
 }

@@ -1,9 +1,6 @@
 package applib
 
-import (
-	"configlib"
-	"path"
-)
+import "configlib"
 
 // Magento2 application
 type Magento2 struct {
@@ -14,16 +11,16 @@ type Magento2 struct {
 func NewMagento2(rootPath string) *Magento2 {
 	app := new(Magento2)
 	app.rootPath = rootPath
-	app.config = configlib.NewConfig("")
-	return app
-}
 
-// GetPublicPath return the public path
-func (app Magento2) GetPublicPath() string {
-	return path.Join(app.rootPath, "/pub")
+	// Create config object
+	var config Config
+	configlib.LoadConfig("", &config)
+	app.config = &config
+
+	return app
 }
 
 // GetType return current app type
 func (app Magento2) GetType() string {
-	return "magento2"
+	return "magento"
 }

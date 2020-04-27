@@ -15,7 +15,12 @@ type Composer struct {
 func NewComposer(rootPath string) *Composer {
 	app := new(Composer)
 	app.rootPath = rootPath
-	app.config = configlib.NewConfig("")
+
+	// Create config object
+	var config Config
+	configlib.LoadConfig("", &config)
+	app.config = &config
+
 	return app
 }
 

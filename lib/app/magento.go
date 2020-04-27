@@ -1,6 +1,13 @@
 package applib
 
-import "configlib"
+import (
+	"configlib"
+)
+
+// MagentoConfig is struct for Magento application config
+type MagentoConfig struct {
+	Key string
+}
 
 // Magento application
 type Magento struct {
@@ -11,7 +18,12 @@ type Magento struct {
 func NewMagento(rootPath string) *Magento {
 	app := new(Magento)
 	app.rootPath = rootPath
-	app.config = configlib.NewConfig("")
+
+	// Create config object
+	var config Config
+	configlib.LoadConfig("", &config)
+	app.config = &config
+
 	return app
 }
 

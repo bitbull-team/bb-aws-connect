@@ -10,8 +10,8 @@ type YAMLParser struct {
 }
 
 // Parse convert string into config object
-func (parser YAMLParser) Parse(config *Config) error {
-	err := yaml.Unmarshal([]byte(parser.content), &config)
+func (parser YAMLParser) Parse(config interface{}) error {
+	err := yaml.Unmarshal([]byte(parser.content), config)
 	if err != nil {
 		return err
 	}

@@ -1,6 +1,8 @@
 package applib
 
-import "configlib"
+import (
+	"configlib"
+)
 
 // GO application
 type GO struct {
@@ -11,7 +13,12 @@ type GO struct {
 func NewGO(rootPath string) *GO {
 	app := new(GO)
 	app.rootPath = rootPath
-	app.config = configlib.NewConfig("")
+
+	// Create config object
+	var config Config
+	configlib.LoadConfig("", &config)
+	app.config = &config
+
 	return app
 }
 

@@ -2,6 +2,20 @@ package applib
 
 import "configlib"
 
+// WordpressConfig is struct for WordpressConfig application config
+type WordpressConfig struct {
+	Keys struct {
+		AuthKey        string
+		SecureAuthKey  string
+		LoggedInKey    string
+		NonceKey       string
+		AuthSalt       string
+		SecureAuthSalt string
+		LoggedInSalt   string
+		NonceSalt      string
+	}
+}
+
 // Wordpress application
 type Wordpress struct {
 	Application
@@ -11,7 +25,12 @@ type Wordpress struct {
 func NewWordpress(rootPath string) *Wordpress {
 	app := new(Wordpress)
 	app.rootPath = rootPath
-	app.config = configlib.NewConfig("")
+
+	// Create config object
+	var config Config
+	configlib.LoadConfig("", &config)
+	app.config = &config
+
 	return app
 }
 
