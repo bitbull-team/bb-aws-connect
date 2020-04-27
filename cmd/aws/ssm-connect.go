@@ -47,6 +47,12 @@ func SSMSelectInstance(c *cli.Context) error {
 		return cli.Exit("No instances found", -1)
 	}
 
+	// If only one instance is found connect to it
+	if len(instances) == 1 {
+		c.Set("instance", *instances[0].ID)
+		return SSMStartSession(c)
+	}
+
 	// Build table
 	header := fmt.Sprintf("%-20s\t%-15s\t%s\t%s", "Instace ID", "IP address", "Environment", "ServiceType")
 	var options []string

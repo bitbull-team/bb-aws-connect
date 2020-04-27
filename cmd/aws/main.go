@@ -12,24 +12,29 @@ import (
 func CreateAWSSession(c *cli.Context) *session.Session {
 	config := configlib.NewConfig("")
 
+	// Check for AWS profile
 	profile := c.String("profile")
 	if len(profile) == 0 {
 		profile = config.AWS.Profile
 	}
+	c.Set("profile", profile)
 
+	// Check for region
 	region := c.String("region")
-	if len(region) == 0 && len(config.AWS.Region) != 0 {
-		region = config.AWS.Region
+	awsConfig := aws.Config{}
+	if len(region) != 0 {
+		awsConfig.Region = aws.String(c.String("region"))
+	} else if len(region) == 0 && len(config.AWS.Region) != 0 {
+		awsConfig.Region = aws.String(region)
 	} else {
-		region = "eu-west-1"
+		awsConfig.Region = aws.String("eu-west-1")
 	}
+	c.Set("region", *awsConfig.Region)
 
 	return session.Must(session.NewSessionWithOptions(session.Options{
 		Profile:           profile,
 		SharedConfigState: session.SharedConfigEnable,
-		Config: aws.Config{
-			Region: aws.String(region),
-		},
+		Config:            awsConfig,
 	}))
 }
 
@@ -40,11 +45,13 @@ func Commands() []*cli.Command {
 			Name:    "profile",
 			Aliases: []string{"p"},
 			Usage:   "AWS profile name",
+			EnvVars: []string{"AWS_PROFILE"},
 		},
 		&cli.StringFlag{
 			Name:    "region",
 			Aliases: []string{"r"},
 			Usage:   "AWS region",
+			EnvVars: []string{"AWS_DEFAULT_REGION"},
 		},
 	}
 
@@ -117,6 +124,11 @@ func Commands() []*cli.Command {
 						&cli.StringFlag{
 							Name:  "file",
 							Usage: "Script file path to execute (example: ./my-script.sh)",
+						},
+						&cli.BoolFlag{
+							Name:    "auto-select",
+							Aliases: []string{"a"},
+							Usage:   "Automatically select all instance listed without asking",
 						},
 					}...),
 				},

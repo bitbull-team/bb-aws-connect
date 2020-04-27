@@ -56,6 +56,14 @@ func SSMSelectInstances(c *cli.Context) error {
 		options = append(options, fmt.Sprintf("%-20s\t%-15s\t%-8s\t%s", *instance.ID, *instance.IP, *instance.Environment, *instance.ServiceType))
 	}
 
+	// Check if auto select is set
+	if c.Bool("auto-select") {
+		for _, instance := range instances {
+			c.Set("instance", *instance.ID)
+		}
+		return SSMRunCommand(c)
+	}
+
 	// Ask selection
 	instancesSelectedIndex := []int{}
 	prompt := &survey.MultiSelect{
