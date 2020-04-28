@@ -62,51 +62,51 @@ func (Application) Build() error {
 }
 
 // NewApplication create an Application struct
-func NewApplication(rootPath string) ApplicationInterface {
+func NewApplication(rootPath string, configPath string) ApplicationInterface {
 	var config Config
-	configlib.LoadConfig("", &config)
+	configlib.LoadConfig(configPath, &config)
 
 	// Check if config override app type
 	if len(config.App.Type) != 0 {
 		switch config.App.Type {
 		case "wordpress":
-			return *NewWordpress(rootPath)
+			return *NewWordpress(rootPath, configPath)
 		case "magento":
-			return *NewMagento(rootPath)
+			return *NewMagento(rootPath, configPath)
 		case "laravel":
-			return *NewLaravel(rootPath)
+			return *NewLaravel(rootPath, configPath)
 		case "magento2":
-			return *NewMagento2(rootPath)
+			return *NewMagento2(rootPath, configPath)
 		case "magentowp":
-			return *NewMagentoWordpress(rootPath)
+			return *NewMagentoWordpress(rootPath, configPath)
 		case "nuxt":
-			return *NewNuxt(rootPath)
+			return *NewNuxt(rootPath, configPath)
 		case "go":
-			return *NewGO(rootPath)
+			return *NewGO(rootPath, configPath)
 		case "composer":
-			return *NewComposer(rootPath)
+			return *NewComposer(rootPath, configPath)
 		case "yarn":
-			return *NewYARN(rootPath)
+			return *NewYARN(rootPath, configPath)
 		case "npm":
-			return *NewNPM(rootPath)
+			return *NewNPM(rootPath, configPath)
 		}
 	}
 
 	// Discover app type
 
 	if filesystemlib.FileExist("wp-load.php") {
-		return *NewWordpress(rootPath)
+		return *NewWordpress(rootPath, configPath)
 	}
 
 	if filesystemlib.FileExist("app/Mage.php") {
 		if filesystemlib.FileExist("wp/wp-load.php") || filesystemlib.FileExist("blog/wp-load.php") {
-			return NewMagentoWordpress(rootPath)
+			return NewMagentoWordpress(rootPath, configPath)
 		}
-		return *NewMagento(rootPath)
+		return *NewMagento(rootPath, configPath)
 	}
 
 	if filesystemlib.FileExist("go.mod") {
-		return *NewGO(rootPath)
+		return *NewGO(rootPath, configPath)
 	}
 
 	// Elaborate composer.json dependencies
@@ -114,31 +114,31 @@ func NewApplication(rootPath string) ApplicationInterface {
 		composer, _ := filesystemlib.LoadComposerFile("composer.json")
 
 		if composer.HasDependency("laravel/framework") {
-			return *NewLaravel(rootPath)
+			return *NewLaravel(rootPath, configPath)
 		}
 
 		if composer.HasDependency("laravel/lumen-framework") {
-			return *NewLaravel(rootPath)
+			return *NewLaravel(rootPath, configPath)
 		}
 
 		if composer.HasDependency("magento/product-community-edition") {
-			return *NewMagento2(rootPath)
+			return *NewMagento2(rootPath, configPath)
 		}
 
 		if composer.HasDependency("magento/product-enterprise-edition") {
-			return *NewMagento2(rootPath)
+			return *NewMagento2(rootPath, configPath)
 		}
 
 		if composer.HasDependency("magento-hackathon/magento-composer-installer") {
 			if composer.HasDependency("wordpress") || composer.HasDependency("wordpress/core") {
-				return *NewMagentoWordpress(rootPath)
+				return *NewMagentoWordpress(rootPath, configPath)
 			}
 
 			if filesystemlib.FileExist("wp/wp-load.php") || filesystemlib.FileExist("blog/wp-load.php") {
-				return *NewMagentoWordpress(rootPath)
+				return *NewMagentoWordpress(rootPath, configPath)
 			}
 
-			return *NewMagento(rootPath)
+			return *NewMagento(rootPath, configPath)
 		}
 	}
 
@@ -147,21 +147,21 @@ func NewApplication(rootPath string) ApplicationInterface {
 		npm, _ := filesystemlib.LoadNPMPackageFile("package.json")
 
 		if npm.HasDependency("nuxt") {
-			return *NewNuxt(rootPath)
+			return *NewNuxt(rootPath, configPath)
 		}
 	}
 
 	// Defaults for composer and package.json
 
 	if filesystemlib.FileExist("composer.json") {
-		return *NewComposer(rootPath)
+		return *NewComposer(rootPath, configPath)
 	}
 
 	if filesystemlib.FileExist("package.json") {
 		if filesystemlib.FileExist("yarn.lock") {
-			return *NewYARN(rootPath)
+			return *NewYARN(rootPath, configPath)
 		}
-		return *NewNPM(rootPath)
+		return *NewNPM(rootPath, configPath)
 	}
 
 	// Base application

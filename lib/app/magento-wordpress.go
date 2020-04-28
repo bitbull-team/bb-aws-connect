@@ -19,10 +19,15 @@ type MagentoWordpress struct {
 }
 
 // NewMagentoWordpress create a new MagentoWordpress app
-func NewMagentoWordpress(rootPath string) *MagentoWordpress {
+func NewMagentoWordpress(rootPath string, configPath string) *MagentoWordpress {
 	app := new(MagentoWordpress)
 	app.rootPath = rootPath
-	configlib.LoadConfig("", &app.config)
+
+	// Create config object
+	var config Config
+	configlib.LoadConfig(configPath, &config)
+	app.config = &config
+
 	return app
 }
 

@@ -22,13 +22,13 @@ type Wordpress struct {
 }
 
 // NewWordpress create a new Wordpress app
-func NewWordpress(rootPath string) *Wordpress {
+func NewWordpress(rootPath string, configPath string) *Wordpress {
 	app := new(Wordpress)
 	app.rootPath = rootPath
 
 	// Create config object
 	var config Config
-	configlib.LoadConfig("", &config)
+	configlib.LoadConfig(configPath, &config)
 	app.config = &config
 
 	return app

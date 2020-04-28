@@ -16,13 +16,13 @@ type Laravel struct {
 }
 
 // NewLaravel create a new Laravel app
-func NewLaravel(rootPath string) *Laravel {
+func NewLaravel(rootPath string, configPath string) *Laravel {
 	app := new(Laravel)
 	app.rootPath = rootPath
 
 	// Create config object
 	var config Config
-	configlib.LoadConfig("", &config)
+	configlib.LoadConfig(configPath, &config)
 	app.config = &config
 
 	return app

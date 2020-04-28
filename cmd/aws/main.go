@@ -13,14 +13,17 @@ type Config struct {
 	AWS struct {
 		Profile string
 		Region  string
+		ECS     struct {
+			Cluster string
+		}
 	}
 }
 
+// Global config
+var config Config
+
 // CreateAWSSession return a new AWS client session
 func CreateAWSSession(c *cli.Context) *session.Session {
-	var config Config
-	configlib.LoadConfig("", &config)
-
 	// Check for AWS profile
 	profile := c.String("profile")
 	if len(profile) == 0 {
@@ -67,6 +70,10 @@ func Commands() []*cli.Command {
 	return []*cli.Command{
 		{
 			Name: "aws",
+			Before: func(c *cli.Context) error {
+				configlib.LoadConfig(c.String("config"), &config)
+				return nil
+			},
 			Subcommands: []*cli.Command{
 				{
 					Name:   "ssm:connect",
@@ -147,11 +154,9 @@ func Commands() []*cli.Command {
 					Action: ECSListServices,
 					Flags: append(globalFlags, []cli.Flag{
 						&cli.StringFlag{
-							Name:     "cluster",
-							Aliases:  []string{"c"},
-							Usage:    "Cluster Name",
-							Value:    "default",
-							Required: true,
+							Name:    "cluster",
+							Aliases: []string{"c"},
+							Usage:   "Cluster Name",
 						},
 						&cli.StringFlag{
 							Name:    "service",

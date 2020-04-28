@@ -13,13 +13,13 @@ type NPM struct {
 }
 
 // NewNPM create a new NPM app
-func NewNPM(rootPath string) *NPM {
+func NewNPM(rootPath string, configPath string) *NPM {
 	app := new(NPM)
 	app.rootPath = rootPath
 
 	// Create config object
 	var config Config
-	configlib.LoadConfig("", &config)
+	configlib.LoadConfig(configPath, &config)
 	app.config = &config
 
 	return app

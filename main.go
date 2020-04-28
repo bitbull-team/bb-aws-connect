@@ -55,6 +55,11 @@ func main() {
 				Value: cwd,
 				Usage: "Change current working directory",
 			},
+			&cli.StringFlag{
+				Name:  "config",
+				Value: ".bb-cli.yml",
+				Usage: "Config file path",
+			},
 		},
 		Before: func(c *cli.Context) error {
 			if c.String("root") != "" {

@@ -21,8 +21,14 @@ func ECSListServices(c *cli.Context) error {
 	// Create AWS session
 	currentSession := CreateAWSSession(c)
 
+	// Get cluster name
+	cluster := c.String("cluster")
+	if len(cluster) == 0 {
+		cluster = config.AWS.ECS.Cluster
+	}
+
 	// List available service
-	services, err := awslib.ECSListServices(currentSession, c.String("cluster"))
+	services, err := awslib.ECSListServices(currentSession, cluster)
 	if err != nil {
 		return cli.Exit("Error during ECS services list: "+err.Error(), -1)
 	}
@@ -75,8 +81,14 @@ func ECSListTasks(c *cli.Context) error {
 	// Create AWS session
 	currentSession := CreateAWSSession(c)
 
+	// Get cluster name
+	cluster := c.String("cluster")
+	if len(cluster) == 0 {
+		cluster = config.AWS.ECS.Cluster
+	}
+
 	// List available service
-	tasks, err := awslib.ECSListServiceTasks(currentSession, c.String("cluster"), c.String("service"))
+	tasks, err := awslib.ECSListServiceTasks(currentSession, cluster, c.String("service"))
 	if err != nil {
 		return cli.Exit("Error during ECS tasks list: "+err.Error(), -1)
 	}
@@ -133,8 +145,14 @@ func ECSListContainer(c *cli.Context) error {
 	// Create AWS session
 	currentSession := CreateAWSSession(c)
 
+	// Get cluster name
+	cluster := c.String("cluster")
+	if len(cluster) == 0 {
+		cluster = config.AWS.ECS.Cluster
+	}
+
 	// List availables service
-	containers, err := awslib.ECSListTaskContainers(currentSession, c.String("cluster"), c.String("task"))
+	containers, err := awslib.ECSListTaskContainers(currentSession, cluster, c.String("task"))
 	if err != nil {
 		return cli.Exit("Error during ECS task containers list: "+err.Error(), -1)
 	}

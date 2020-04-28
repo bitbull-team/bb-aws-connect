@@ -2,5 +2,7 @@ app:
   type: "go" # Application type, if not provided will be elaborated
 
 aws:
-  profile: "default" # AWS profile name to connect to
+  profile: default # AWS profile name to connect to
   region: "eu-west-1" # AWS Region
+  ecs:
+    cluster: default # ECS cluster name

@@ -13,13 +13,13 @@ type YARN struct {
 }
 
 // NewYARN create a new YARN app
-func NewYARN(rootPath string) *YARN {
+func NewYARN(rootPath string, configPath string) *YARN {
 	app := new(YARN)
 	app.rootPath = rootPath
 
 	// Create config object
 	var config Config
-	configlib.LoadConfig("", &config)
+	configlib.LoadConfig(configPath, &config)
 	app.config = &config
 
 	return app

@@ -8,13 +8,13 @@ type Nuxt struct {
 }
 
 // NewNuxt create a new Nuxt app
-func NewNuxt(rootPath string) *Nuxt {
+func NewNuxt(rootPath string, configPath string) *Nuxt {
 	app := new(Nuxt)
 	app.rootPath = rootPath
 
 	// Create config object
 	var config Config
-	configlib.LoadConfig("", &config)
+	configlib.LoadConfig(configPath, &config)
 	app.config = &config
 
 	return app

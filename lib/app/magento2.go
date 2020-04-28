@@ -8,13 +8,13 @@ type Magento2 struct {
 }
 
 // NewMagento2 create a new Magento2 app
-func NewMagento2(rootPath string) *Magento2 {
+func NewMagento2(rootPath string, configPath string) *Magento2 {
 	app := new(Magento2)
 	app.rootPath = rootPath
 
 	// Create config object
 	var config Config
-	configlib.LoadConfig("", &config)
+	configlib.LoadConfig(configPath, &config)
 	app.config = &config
 
 	return app

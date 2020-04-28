@@ -15,13 +15,13 @@ type Magento struct {
 }
 
 // NewMagento create a new Magento app
-func NewMagento(rootPath string) *Magento {
+func NewMagento(rootPath string, configPath string) *Magento {
 	app := new(Magento)
 	app.rootPath = rootPath
 
 	// Create config object
 	var config Config
-	configlib.LoadConfig("", &config)
+	configlib.LoadConfig(configPath, &config)
 	app.config = &config
 
 	return app

@@ -10,13 +10,13 @@ type GO struct {
 }
 
 // NewGO create a new GO app
-func NewGO(rootPath string) *GO {
+func NewGO(rootPath string, configPath string) *GO {
 	app := new(GO)
 	app.rootPath = rootPath
 
 	// Create config object
 	var config Config
-	configlib.LoadConfig("", &config)
+	configlib.LoadConfig(configPath, &config)
 	app.config = &config
 
 	return app

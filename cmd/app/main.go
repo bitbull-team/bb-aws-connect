@@ -2,11 +2,11 @@ package app
 
 import (
 	"applib"
-	"os"
 
 	"github.com/urfave/cli/v2"
 )
 
+// Global application
 var app applib.ApplicationInterface
 
 // Commands - Return all commands
@@ -15,8 +15,7 @@ func Commands() []*cli.Command {
 		{
 			Name: "app",
 			Before: func(c *cli.Context) error {
-				cwd, _ := os.Getwd()
-				app = applib.NewApplication(cwd)
+				app = applib.NewApplication(c.String("root"), c.String("config"))
 				return nil
 			},
 			Subcommands: []*cli.Command{

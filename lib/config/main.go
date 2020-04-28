@@ -21,10 +21,6 @@ type Parser interface {
 
 // LoadConfig load config into existing object
 func LoadConfig(path string, config interface{}) error {
-	if len(path) == 0 {
-		path = ".bb-cli.yml"
-	}
-
 	url, _ := url.Parse(path)
 	extension := filepath.Ext(path)
 
