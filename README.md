@@ -28,6 +28,16 @@ You can also install CLI from deb or rpm package downloading from releases page:
 
 Unlock CLI executable file going to "System Preference > Security and Privacy > General" and click on button "open anyway".
 
+## Commands
+
+Commands are grouped by first argument:
+```bash
+bb-cli aws <command> # AWS related commands
+bb-cli app <command> # Application manipulation/build related commands
+```
+
+Check more infos at [commands documentations](cmd/README.md)
+
 ## Running commands into different directories
 
 You can execute command into a different directory changing CWD (current working directory) using `--root` flag:
@@ -58,12 +68,6 @@ aws:
     cluster: default
 ```
 
-## Commands
+## Wants to contribute?
 
-Commands are grouped by first argument:
-```bash
-bb-cli aws <command> # AWS related commands
-bb-cli app <command> # Application manipulation/build related commands
-```
-
-Check more infos at [commands documentations](cmd/README.md)
+Here a [contributing guide](CONTRIBUTING.md)
