@@ -6,9 +6,9 @@ This project is CLI used to collect together repeatable commands and procedures 
 
 Download last archive package version from [releases page](https://github.com/bitbull-team/bb-cli/releases):
 
-* Windows: bb-cli_<version>_Windows_x86_64.zip
-* Mac: bb-cli_<version>_Darwin_x86_64.tar.gz
-* Linux: bb-cli_<version>_Linux_x86_64.tar.gz
+* Windows: bb-cli_VERSION_Windows_x86_64.zip
+* Mac: bb-cli_VERSION_Darwin_x86_64.tar.gz
+* Linux: bb-cli_VERSION_Linux_x86_64.tar.gz
 
 Unpack it and copy `bb-cli` into one of your executable paths, for example, for Mac and Linux users:
 ```bash
@@ -21,8 +21,8 @@ rm bb-cli_*.tar.gz
 
 You can also install CLI from deb or rpm package downloading from releases page:
 
-* bb-cli_<version>_linux_amd64.deb
-* bb-cli_<version>_linux_amd64.rpm
+* bb-cli_VERSION_linux_amd64.deb
+* bb-cli_VERSION_linux_amd64.rpm
 
 ### For Mac Users
 
