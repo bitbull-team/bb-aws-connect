@@ -60,7 +60,13 @@ func ECSListServices(c *cli.Context) error {
 
 	// Check response
 	if serviceSelectedIndex == -1 {
-		fmt.Println("\nNo service selected")
+		fmt.Println("No service selected")
+		return nil
+	}
+
+	// Check task status
+	if *services[serviceSelectedIndex].RunningCount == 0 {
+		fmt.Println("Selected service has no running tasks, cannot connect")
 		return nil
 	}
 
@@ -123,7 +129,14 @@ func ECSListTasks(c *cli.Context) error {
 
 	// Check response
 	if taskSelectedIndex == -1 {
-		fmt.Println("\nNo task selected")
+		fmt.Println("No task selected")
+		return nil
+	}
+
+	// Check task status
+	status := *tasks[taskSelectedIndex].Status
+	if status != "RUNNING" {
+		fmt.Println("Selected task is in " + status + " status, cannot connect")
 		return nil
 	}
 
