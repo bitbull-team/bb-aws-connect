@@ -37,7 +37,7 @@ func CreateAWSSession(c *cli.Context) *session.Session {
 	if len(region) != 0 {
 		awsConfig.Region = aws.String(c.String("region"))
 	} else if len(region) == 0 && len(config.AWS.Region) != 0 {
-		awsConfig.Region = aws.String(region)
+		awsConfig.Region = aws.String(config.AWS.Region)
 	} else {
 		awsConfig.Region = aws.String("eu-west-1")
 	}

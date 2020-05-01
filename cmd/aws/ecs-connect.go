@@ -14,7 +14,7 @@ func NewECSConnectCommand(globalFlags []cli.Flag) *cli.Command {
 	return &cli.Command{
 		Name:   "ecs:connect",
 		Usage:  "Connect to an ECS Task container",
-		Action: ECSListServices,
+		Action: ECSConnect,
 		Flags: append(globalFlags, []cli.Flag{
 			&cli.StringFlag{
 				Name:    "cluster",
@@ -58,13 +58,109 @@ func NewECSConnectCommand(globalFlags []cli.Flag) *cli.Command {
 	}
 }
 
+// ECSConnect connect to an ECS container
+func ECSConnect(c *cli.Context) error {
+	var err error
+	// List ECS clusters
+	err = ECSListClusters(c)
+	if err != nil {
+		return err
+	}
+
+	// List ECS services
+	err = ECSListServices(c)
+	if err != nil {
+		return err
+	}
+
+	// List ECS tasks
+	err = ECSListTasks(c)
+	if err != nil {
+		return err
+	}
+
+	// List ECS container
+	err = ECSListContainer(c)
+	if err != nil {
+		return err
+	}
+
+	// connect to ECS container
+	err = ECSConnectToContainer(c)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ECSListClusters list ECS Clusters
+func ECSListClusters(c *cli.Context) error {
+	// Check if service name is provided
+	clusterName := c.String("cluster")
+	if len(clusterName) != 0 {
+		// List services
+		return nil
+	}
+
+	// Create AWS session
+	currentSession := CreateAWSSession(c)
+
+	// Get cluster name
+	cluster := c.String("cluster")
+	if len(cluster) == 0 {
+		cluster = config.AWS.ECS.Cluster
+	}
+
+	// List available clusters
+	clusters, err := awslib.ECSListClusters(currentSession)
+	if err != nil {
+		return cli.Exit("Error during ECS clusters list: "+err.Error(), -1)
+	}
+	if len(clusters) == 0 {
+		return cli.Exit("No cluster found", -1)
+	}
+
+	// If only one cluster is found select it
+	if len(clusters) == 1 {
+		fmt.Println("Cluster auto selected: ", *clusters[0].Name)
+		c.Set("cluster", *clusters[0].Name)
+		return nil
+	}
+
+	// Build options
+	var options []string
+	for _, cluster := range clusters {
+		options = append(options, *cluster.Name)
+	}
+	// Ask selection
+	var clusterSelected string
+	prompt := &survey.Select{
+		Message:  "Select a cluster:",
+		Options:  options,
+		PageSize: 10,
+	}
+	survey.AskOne(prompt, &clusterSelected)
+	fmt.Println("")
+
+	// Check response
+	if len(clusterSelected) == 0 {
+		fmt.Println("No Cluster selected")
+		return nil
+	}
+
+	// Set service in context
+	c.Set("cluster", clusterSelected)
+	return nil
+}
+
 // ECSListServices list ECS Services
 func ECSListServices(c *cli.Context) error {
 	// Check if service name is provided
 	serviceName := c.String("service")
 	if len(serviceName) != 0 {
 		// Start SSM session
-		return ECSListTasks(c)
+		return nil
 	}
 
 	// Create AWS session
@@ -83,6 +179,13 @@ func ECSListServices(c *cli.Context) error {
 	}
 	if len(services) == 0 {
 		return cli.Exit("No services found", -1)
+	}
+
+	// If only one services is found connect to it
+	if len(services) == 1 {
+		fmt.Println("Service auto selected: ", *services[0].Name)
+		c.Set("service", *services[0].Name)
+		return nil
 	}
 
 	// Build table
@@ -121,7 +224,7 @@ func ECSListServices(c *cli.Context) error {
 
 	// Set service in context
 	c.Set("service", *services[serviceSelectedIndex].Name)
-	return ECSListTasks(c)
+	return nil
 }
 
 // ECSListTasks list ECS Tasks
@@ -130,7 +233,7 @@ func ECSListTasks(c *cli.Context) error {
 	taskID := c.String("task")
 	if len(taskID) != 0 {
 		// Start SSM session
-		return ECSListContainer(c)
+		return nil
 	}
 
 	// Create AWS session
@@ -149,6 +252,14 @@ func ECSListTasks(c *cli.Context) error {
 	}
 	if len(tasks) == 0 {
 		return cli.Exit("No tasks found for this service", -1)
+	}
+
+	// If only one task is found connect to it
+	if len(tasks) == 1 {
+		fmt.Println("Task auto selected: ", *tasks[0].Arn)
+		c.Set("task", *tasks[0].Arn)
+		c.Set("instance", *tasks[0].ContainerInstance.Ec2InstanceId)
+		return nil
 	}
 
 	// Build table
@@ -185,14 +296,14 @@ func ECSListTasks(c *cli.Context) error {
 	// Check task status
 	status := *tasks[taskSelectedIndex].Status
 	if status != "RUNNING" {
-		fmt.Println("Selected task is in " + status + " status, cannot connect")
+		fmt.Println("Selected task is in ", status, " status, cannot connect")
 		return nil
 	}
 
 	// Set task and instance
 	c.Set("task", *tasks[taskSelectedIndex].Arn)
 	c.Set("instance", *tasks[taskSelectedIndex].ContainerInstance.Ec2InstanceId)
-	return ECSListContainer(c)
+	return nil
 }
 
 // ECSListContainer list ECS Tasks containers
@@ -201,7 +312,7 @@ func ECSListContainer(c *cli.Context) error {
 	containerID := c.String("container")
 	if len(containerID) != 0 {
 		// Start SSM session
-		return ECSConnectToContainer(c)
+		return nil
 	}
 
 	// Create AWS session
@@ -220,6 +331,13 @@ func ECSListContainer(c *cli.Context) error {
 	}
 	if len(containers) == 0 {
 		return cli.Exit("No containers found", -1)
+	}
+
+	// If only one container is found connect to it
+	if len(containers) == 1 {
+		fmt.Println("Container auto selected: ", *containers[0].RuntimeId)
+		c.Set("container", *containers[0].RuntimeId)
+		return nil
 	}
 
 	// Build table
@@ -253,7 +371,7 @@ func ECSListContainer(c *cli.Context) error {
 
 	// Set container ID
 	c.Set("container", *containers[containerSelectedIndex].RuntimeId)
-	return ECSConnectToContainer(c)
+	return nil
 }
 
 // ECSConnectToContainer connect to select container

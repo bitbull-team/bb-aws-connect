@@ -6,6 +6,69 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecs"
 )
 
+// ECSCluster is a result of ECSListClusters
+type ECSCluster struct {
+	Name *string
+}
+
+// ECSListClusters return a list of cluster
+func ECSListClusters(ses *session.Session) ([]ECSCluster, error) {
+	// Load session from shared config
+	if ses == nil {
+		ses = session.Must(session.NewSessionWithOptions(session.Options{
+			SharedConfigState: session.SharedConfigEnable,
+		}))
+	}
+
+	// Create new ECS client and list services
+	ecsSvc := ecs.New(ses)
+	listResult, listErr := ecsSvc.ListClusters(&ecs.ListClustersInput{
+		MaxResults: aws.Int64(100),
+	})
+	var formattedClusters []ECSCluster
+	if listErr != nil {
+		return formattedClusters, listErr
+	}
+
+	if len(listResult.ClusterArns) == 0 {
+		return formattedClusters, nil
+	}
+
+	// Collect clusters ARNs
+	var clusterArns []*string
+	for _, clusterArn := range listResult.ClusterArns {
+		clusterArns = append(clusterArns, clusterArn)
+	}
+
+	// Retrieve ECS clusters details
+	var clusters []*ecs.Cluster
+	chunkSize := 10
+	for i := 0; i < len(clusterArns); i += chunkSize {
+		end := i + chunkSize
+
+		if end > len(clusterArns) {
+			end = len(clusterArns)
+		}
+
+		describeResult, describeErr := ecsSvc.DescribeClusters(&ecs.DescribeClustersInput{
+			Clusters: clusterArns[i:end],
+		})
+		if describeErr != nil {
+			return formattedClusters, describeErr
+		}
+		clusters = append(clusters, describeResult.Clusters...)
+	}
+
+	// Format Clusters
+	for _, cluster := range clusters {
+		formattedClusters = append(formattedClusters, ECSCluster{
+			Name: cluster.ClusterName,
+		})
+	}
+
+	return formattedClusters, nil
+}
+
 // ECSService is a result of EC2ListInstances
 type ECSService struct {
 	Name         *string
@@ -36,6 +99,7 @@ func ECSListServices(ses *session.Session, cluster string) ([]ECSService, error)
 	})
 
 	// Retrieve ECS services details
+	var formattedServices []ECSService
 	var services []*ecs.Service
 	chunkSize := 10
 	for i := 0; i < len(serviceArns); i += chunkSize {
@@ -50,13 +114,12 @@ func ECSListServices(ses *session.Session, cluster string) ([]ECSService, error)
 			Services: serviceArns[i:end],
 		})
 		if describeErr != nil {
-			return make([]ECSService, 0), describeErr
+			return formattedServices, describeErr
 		}
 		services = append(services, describeResult.Services...)
 	}
 
 	// Format service
-	var formattedServices []ECSService
 	for _, service := range services {
 		formattedServices = append(formattedServices, ECSService{
 			Name:         service.ServiceName,

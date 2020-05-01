@@ -4,5 +4,3 @@ app:
 aws:
   profile: default # AWS profile name to connect to
   region: "eu-west-1" # AWS Region
-  ecs:
-    cluster: default # ECS cluster name

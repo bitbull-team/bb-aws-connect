@@ -61,7 +61,7 @@ func SSMWaitCommand(ses *session.Session, commandID *string) ([]SSMCommandRespon
 	var err error
 
 	// Wait for command ingestion
-	fmt.Println("Waiting for command id " + *commandID + "..")
+	fmt.Println("Waiting for command id ", *commandID, "..")
 	time.Sleep(2 * time.Second)
 
 	// Wait for command status change
