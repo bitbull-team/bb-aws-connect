@@ -8,6 +8,23 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// NewConfigCommand return "config" command
+func NewConfigCommand() *cli.Command {
+	return &cli.Command{
+		Name:  "config",
+		Usage: "Dump config",
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:    "format",
+				Aliases: []string{"f"},
+				Usage:   "Output format (example: json, yml, go)",
+				Value:   "yml",
+			},
+		},
+		Action: DumpConfig,
+	}
+}
+
 // DumpConfig print application configurations
 func DumpConfig(c *cli.Context) error {
 	config := app.GetConfig()

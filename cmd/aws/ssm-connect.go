@@ -9,6 +9,51 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+// NewSSMConnectCommand return "ssm:connect" command
+func NewSSMConnectCommand(globalFlags []cli.Flag) *cli.Command {
+	return &cli.Command{
+		Name:   "ssm:connect",
+		Usage:  "Connect to an EC2 instance using SSM session",
+		Action: SSMSelectInstance,
+		Flags: append(globalFlags, []cli.Flag{
+			&cli.StringFlag{
+				Name:    "service",
+				Aliases: []string{"s"},
+				Usage:   "Service Type (example: bastion, frontend, varnish)",
+			},
+			&cli.StringFlag{
+				Name:    "env",
+				Aliases: []string{"e"},
+				Usage:   "Environment (example: test, stage, prod)",
+			},
+			&cli.StringFlag{
+				Name:    "instance",
+				Aliases: []string{"i"},
+				Usage:   "Instace ID (example: i-xxxxxxxxxxxxxxxxx)",
+			},
+			&cli.StringFlag{
+				Name:  "cwd",
+				Usage: "Current working directory (example: /var/www/)",
+				Value: "/",
+			},
+			&cli.StringFlag{
+				Name:  "user",
+				Usage: "User to use in the session",
+				Value: "root",
+			},
+			&cli.StringFlag{
+				Name:  "shell",
+				Usage: "Shell used in session",
+				Value: "/bin/bash",
+			},
+			&cli.StringFlag{
+				Name:  "command",
+				Usage: "Use a custom command as entrypoint",
+			},
+		}...),
+	}
+}
+
 // SSMSelectInstance list instances to connect to
 func SSMSelectInstance(c *cli.Context) error {
 	// Check if instance is provided

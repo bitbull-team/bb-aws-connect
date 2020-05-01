@@ -9,6 +9,55 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+// NewECSConnectCommand return "ecs:connect" command
+func NewECSConnectCommand(globalFlags []cli.Flag) *cli.Command {
+	return &cli.Command{
+		Name:   "ecs:connect",
+		Usage:  "Connect to an ECS Task container",
+		Action: ECSListServices,
+		Flags: append(globalFlags, []cli.Flag{
+			&cli.StringFlag{
+				Name:    "cluster",
+				Aliases: []string{"c"},
+				Usage:   "Cluster Name",
+			},
+			&cli.StringFlag{
+				Name:    "service",
+				Aliases: []string{"s"},
+				Usage:   "Service name (example: my-service)",
+			},
+			&cli.StringFlag{
+				Name:    "task",
+				Aliases: []string{"t"},
+				Usage:   "Task ID (example: xxxxxxxxxxxxxxxxxxxx)",
+			},
+			&cli.StringFlag{
+				Name:   "container",
+				Hidden: true,
+			},
+			&cli.StringFlag{
+				Name:   "instance",
+				Hidden: true,
+			},
+			&cli.StringFlag{
+				Name:    "workdir",
+				Aliases: []string{"w"},
+				Usage:   "Docker exec 'workdir' parameters (example: /app)",
+			},
+			&cli.StringFlag{
+				Name:    "user",
+				Aliases: []string{"u"},
+				Usage:   "Docker exec 'user' parameters (example: www-data)",
+			},
+			&cli.StringFlag{
+				Name:  "command",
+				Usage: "Use a custom command as entrypoint",
+				Value: "/bin/bash",
+			},
+		}...),
+	}
+}
+
 // ECSListServices list ECS Services
 func ECSListServices(c *cli.Context) error {
 	// Check if service name is provided

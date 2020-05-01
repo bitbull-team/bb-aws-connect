@@ -11,6 +11,42 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+// NewSSMRunCommand return "ssm:run" command
+func NewSSMRunCommand(globalFlags []cli.Flag) *cli.Command {
+	return &cli.Command{
+		Name:      "ssm:run",
+		Usage:     "Run command to EC2 instances using a SSM command",
+		ArgsUsage: "[command to execute]",
+		Action:    SSMSelectInstances,
+		Flags: append(globalFlags, []cli.Flag{
+			&cli.StringFlag{
+				Name:    "service",
+				Aliases: []string{"s"},
+				Usage:   "Service Type (example: bastion, frontend, varnish)",
+			},
+			&cli.StringFlag{
+				Name:    "env",
+				Aliases: []string{"e"},
+				Usage:   "Environment (example: test, stage, prod)",
+			},
+			&cli.StringSliceFlag{
+				Name:    "instance",
+				Aliases: []string{"i"},
+				Usage:   "Instace ID (example: i-xxxxxxxxxxxxxxxxx)",
+			},
+			&cli.StringFlag{
+				Name:  "file",
+				Usage: "Script file path to execute (example: ./my-script.sh)",
+			},
+			&cli.BoolFlag{
+				Name:    "auto-select",
+				Aliases: []string{"a"},
+				Usage:   "Automatically select all instance listed without asking",
+			},
+		}...),
+	}
+}
+
 // SSMSelectInstances select multiple instances
 func SSMSelectInstances(c *cli.Context) error {
 	// Check if instance is provided

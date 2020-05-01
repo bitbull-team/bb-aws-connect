@@ -3,31 +3,32 @@ package dockerlib
 import (
 	"errors"
 	"filesystemlib"
+	"fmt"
 	"path"
 	"shelllib"
 )
 
-// LoginToRepository login to remote Docker repository
-func LoginToRepository(repository string, username string, password string) error {
+// LoginToRegistry login to remote Docker registry
+func LoginToRegistry(registry string, username string, password string) error {
 	args := []string{
 		"login",
 		"--username=" + username,
 		"--password=" + password,
-		repository,
+		registry,
 	}
 	err := shelllib.ExecuteCommand("docker", args...)
 	if err != nil {
-		return errors.New("Error executing Docker build command: " + err.Error())
+		return err
 	}
 
 	return nil
 }
 
 // BuildImage build a Docker image
-func BuildImage(contextPath string, tag string, buildArgs []string) error {
+func BuildImage(contextPath string, image string, tag string, buildArgs []string) error {
 	dockerFilePath := path.Join(contextPath, "Dockerfile")
 	if filesystemlib.FileExist(dockerFilePath) == false {
-		return errors.New("cannot find Dockerfile " + dockerFilePath)
+		return errors.New("Cannot find Dockerfile " + dockerFilePath)
 	}
 
 	args := []string{
@@ -38,12 +39,26 @@ func BuildImage(contextPath string, tag string, buildArgs []string) error {
 		args = append(args, "--build-arg="+buildArg)
 	}
 	if tag != "" {
-		args = append(args, "--tag="+tag)
+		args = append(args, fmt.Sprintf("--tag=%s:%s", image, tag))
 	}
 
 	err := shelllib.ExecuteCommand("docker", args...)
 	if err != nil {
-		return errors.New("Error executing Docker build command: " + err.Error())
+		return err
+	}
+
+	return nil
+}
+
+// PushImage push a Docker image
+func PushImage(image string, tag string) error {
+	args := []string{
+		"push",
+		fmt.Sprintf("%s:%s", image, tag),
+	}
+	err := shelllib.ExecuteCommand("docker", args...)
+	if err != nil {
+		return err
 	}
 
 	return nil

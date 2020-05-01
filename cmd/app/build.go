@@ -4,6 +4,15 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+// NewBuildCommand return "build" command
+func NewBuildCommand() *cli.Command {
+	return &cli.Command{
+		Name:   "build",
+		Usage:  "Build application",
+		Action: Build,
+	}
+}
+
 // Build application
 func Build(c *cli.Context) error {
 	err := app.Build()
