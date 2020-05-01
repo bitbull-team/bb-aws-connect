@@ -22,3 +22,21 @@ You can be able to execute file directly:
 ```bash
 ./bb-cli --help
 ```
+
+### Install a dev version
+
+If you want to override your system installed CLI with development version. 
+Build it (if not already did):
+```bash
+go build -o bb-cli main.go
+```
+and then install it into your system:
+```bash
+sudo cp bb-cli /usr/local/bin/bb-cli
+```
+
+## Resources
+
+* [A tour of Go](https://tour.golang.org/list)
+* [CLI library](https://github.com/urfave/cli/blob/master/docs/v2/manual.md)
+* [Input library](https://github.com/AlecAivazis/survey)

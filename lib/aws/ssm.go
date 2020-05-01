@@ -1,7 +1,6 @@
 package awslib
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -10,7 +9,7 @@ import (
 )
 
 // SSMExecuteCommand execute an SSM command and return command id
-func SSMExecuteCommand(ses *session.Session, instanceIDs []string, commands []string, documentName string, comment string) (*string, error) {
+func SSMExecuteCommand(ses *session.Session, instanceIDs []string, documentName string, parameters map[string][]*string, comment string) (*string, error) {
 	// Load session from shared config
 	if ses == nil {
 		ses = session.Must(session.NewSessionWithOptions(session.Options{
@@ -24,9 +23,7 @@ func SSMExecuteCommand(ses *session.Session, instanceIDs []string, commands []st
 		Comment:      &comment,
 		InstanceIds:  aws.StringSlice(instanceIDs),
 		DocumentName: aws.String(documentName),
-		Parameters: map[string][]*string{
-			"commands": aws.StringSlice(commands),
-		},
+		Parameters:   parameters,
 	})
 
 	var commandID *string
@@ -61,7 +58,6 @@ func SSMWaitCommand(ses *session.Session, commandID *string) ([]SSMCommandRespon
 	var err error
 
 	// Wait for command ingestion
-	fmt.Println("Waiting for command id ", *commandID, "..")
 	time.Sleep(2 * time.Second)
 
 	// Wait for command status change
@@ -114,4 +110,71 @@ func SSMWaitCommand(ses *session.Session, commandID *string) ([]SSMCommandRespon
 	}
 
 	return responses, allInvocationSuccess, nil
+}
+
+// SSMDocument is the SSM list document response
+type SSMDocument struct {
+	Name  *string
+	Owner *string
+}
+
+// SSMListDocuments return a list of SSM document
+func SSMListDocuments(ses *session.Session, owner string) ([]SSMDocument, error) {
+	if ses == nil {
+		ses = session.Must(session.NewSessionWithOptions(session.Options{
+			SharedConfigState: session.SharedConfigEnable,
+		}))
+	}
+
+	// Create new SSM client
+	ssmSvc := ssm.New(ses)
+
+	// List Documents
+	var documents []SSMDocument
+	ssmSvc.ListDocumentsPages(&ssm.ListDocumentsInput{
+		Filters: []*ssm.DocumentKeyValuesFilter{
+			&ssm.DocumentKeyValuesFilter{
+				Key: aws.String("Owner"),
+				Values: aws.StringSlice([]string{
+					owner,
+				}),
+			},
+		},
+	}, func(page *ssm.ListDocumentsOutput, lastPage bool) bool {
+		for _, documentIdentifier := range page.DocumentIdentifiers {
+			documents = append(documents, SSMDocument{
+				Name:  documentIdentifier.Name,
+				Owner: documentIdentifier.Owner,
+			})
+		}
+		return true // iterate over all pages
+	})
+
+	return documents, nil
+}
+
+// SSMGetDocumentParameters return a details about SSM document
+func SSMGetDocumentParameters(ses *session.Session, documentName string) ([]*ssm.DocumentParameter, error) {
+	if ses == nil {
+		ses = session.Must(session.NewSessionWithOptions(session.Options{
+			SharedConfigState: session.SharedConfigEnable,
+		}))
+	}
+
+	// List Documents
+	ssmSvc := ssm.New(ses)
+	describeResponse, err := ssmSvc.DescribeDocument(&ssm.DescribeDocumentInput{
+		Name: aws.String(documentName),
+	})
+	var parameters []*ssm.DocumentParameter
+	if err != nil {
+		return parameters, err
+	}
+
+	if describeResponse.Document.Parameters == nil {
+		return make([]*ssm.DocumentParameter, 0), nil
+	}
+	parameters = describeResponse.Document.Parameters
+
+	return parameters, nil
 }

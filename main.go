@@ -19,7 +19,7 @@ func main() {
 	cmds = append(cmds, app.Commands()...)
 
 	cli.VersionPrinter = func(c *cli.Context) {
-		fmt.Println("",
+		fmt.Println(
 			"		                                               \n",
 			"                       ``````                     \n",
 			"                        ```````                   \n",
@@ -39,7 +39,8 @@ func main() {
 			"  `sM+`.MM+     .MM.``dMMMo`                      \n",
 			"  `/M+`.MM.     `hM.``dMMo`                       \n",
 			"   .+-``+/`     `-+` `/+/`\n",
-			"      ")
+			"      ",
+		)
 		fmt.Fprintf(c.App.Writer, "Bitbull CLI %s\n", c.App.Version)
 	}
 

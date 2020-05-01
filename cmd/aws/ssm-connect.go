@@ -14,7 +14,7 @@ func NewSSMConnectCommand(globalFlags []cli.Flag) *cli.Command {
 	return &cli.Command{
 		Name:   "ssm:connect",
 		Usage:  "Connect to an EC2 instance using SSM session",
-		Action: SSMSelectInstance,
+		Action: SSMConnect,
 		Flags: append(globalFlags, []cli.Flag{
 			&cli.StringFlag{
 				Name:    "service",
@@ -54,13 +54,31 @@ func NewSSMConnectCommand(globalFlags []cli.Flag) *cli.Command {
 	}
 }
 
+// SSMConnect connect to an EC2 instance using SSM
+func SSMConnect(c *cli.Context) error {
+	var err error
+	// Select EC2 instance
+	err = SSMSelectInstance(c)
+	if err != nil {
+		return err
+	}
+
+	// Start SSM session
+	err = SSMStartSession(c)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // SSMSelectInstance list instances to connect to
 func SSMSelectInstance(c *cli.Context) error {
 	// Check if instance is provided
 	instanceID := c.String("instance")
 	if len(instanceID) != 0 {
 		// Start SSM session
-		return SSMStartSession(c)
+		return nil
 	}
 
 	// Create AWS session
@@ -86,17 +104,17 @@ func SSMSelectInstance(c *cli.Context) error {
 	// List available instance
 	instances, err := awslib.EC2ListInstances(currentSession, tagFilters)
 	if err != nil {
-		return cli.Exit("Error during EC2 instance list: "+err.Error(), -1)
+		return cli.Exit("Error during EC2 instance list: "+err.Error(), 1)
 	}
 	if len(instances) == 0 {
-		return cli.Exit("No instances found", -1)
+		return cli.Exit("No instances found", 1)
 	}
 
 	// If only one instance is found connect to it
 	if len(instances) == 1 {
 		fmt.Println("Instace auto selected: ", *instances[0].ID)
 		c.Set("instance", *instances[0].ID)
-		return SSMStartSession(c)
+		return nil
 	}
 
 	// Build table
@@ -118,13 +136,12 @@ func SSMSelectInstance(c *cli.Context) error {
 
 	// Check response
 	if instanceSelectedIndex == -1 {
-		fmt.Println("\nNo instance selected")
-		return nil
+		return cli.Exit("No instance selected", 1)
 	}
 
 	// Start SSM session
 	c.Set("instance", *instances[instanceSelectedIndex].ID)
-	return SSMStartSession(c)
+	return nil
 }
 
 // SSMStartSession connect to a instance

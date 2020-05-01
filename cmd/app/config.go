@@ -41,7 +41,7 @@ func DumpConfig(c *cli.Context) error {
 	case "go":
 		dump = []byte(fmt.Sprintf("%+v", config))
 	default:
-		return cli.Exit("Format not recognized: "+format, -1)
+		return cli.Exit("Format not recognized: "+format, 1)
 	}
 
 	fmt.Printf("%+s", dump)

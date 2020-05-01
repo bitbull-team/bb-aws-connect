@@ -17,7 +17,7 @@ func NewBuildCommand() *cli.Command {
 func Build(c *cli.Context) error {
 	err := app.Build()
 	if err != nil {
-		return cli.Exit("Error during build process: "+err.Error(), -1)
+		return cli.Exit("Error during build process: "+err.Error(), 1)
 	}
 
 	return nil

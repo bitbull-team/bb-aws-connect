@@ -76,8 +76,9 @@ func Commands() []*cli.Command {
 			},
 			Subcommands: []*cli.Command{
 				NewECSConnectCommand(globalFlags),
-				NewSSMRunCommand(globalFlags),
 				NewSSMConnectCommand(globalFlags),
+				NewSSMRunCommand(globalFlags),
+				NewSSMRunDocumentCommand(globalFlags),
 			},
 		},
 	}

@@ -17,7 +17,7 @@ func NewInstallCommand() *cli.Command {
 func Install(c *cli.Context) error {
 	err := app.Install()
 	if err != nil {
-		return cli.Exit("Error during install process: "+err.Error(), -1)
+		return cli.Exit("Error during install process: "+err.Error(), 1)
 	}
 
 	return nil

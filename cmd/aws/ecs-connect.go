@@ -115,10 +115,10 @@ func ECSListClusters(c *cli.Context) error {
 	// List available clusters
 	clusters, err := awslib.ECSListClusters(currentSession)
 	if err != nil {
-		return cli.Exit("Error during ECS clusters list: "+err.Error(), -1)
+		return cli.Exit("Error during ECS clusters list: "+err.Error(), 1)
 	}
 	if len(clusters) == 0 {
-		return cli.Exit("No cluster found", -1)
+		return cli.Exit("No cluster found", 1)
 	}
 
 	// If only one cluster is found select it
@@ -145,8 +145,7 @@ func ECSListClusters(c *cli.Context) error {
 
 	// Check response
 	if len(clusterSelected) == 0 {
-		fmt.Println("No Cluster selected")
-		return nil
+		return cli.Exit("No cluster selected", 1)
 	}
 
 	// Set service in context
@@ -175,10 +174,10 @@ func ECSListServices(c *cli.Context) error {
 	// List available service
 	services, err := awslib.ECSListServices(currentSession, cluster)
 	if err != nil {
-		return cli.Exit("Error during ECS services list: "+err.Error(), -1)
+		return cli.Exit("Error during ECS services list: "+err.Error(), 1)
 	}
 	if len(services) == 0 {
-		return cli.Exit("No services found", -1)
+		return cli.Exit("No services found", 1)
 	}
 
 	// If only one services is found connect to it
@@ -212,8 +211,7 @@ func ECSListServices(c *cli.Context) error {
 
 	// Check response
 	if serviceSelectedIndex == -1 {
-		fmt.Println("No service selected")
-		return nil
+		return cli.Exit("No service selected", 1)
 	}
 
 	// Check task status
@@ -248,10 +246,10 @@ func ECSListTasks(c *cli.Context) error {
 	// List available service
 	tasks, err := awslib.ECSListServiceTasks(currentSession, cluster, c.String("service"))
 	if err != nil {
-		return cli.Exit("Error during ECS tasks list: "+err.Error(), -1)
+		return cli.Exit("Error during ECS tasks list: "+err.Error(), 1)
 	}
 	if len(tasks) == 0 {
-		return cli.Exit("No tasks found for this service", -1)
+		return cli.Exit("No tasks found for this service", 1)
 	}
 
 	// If only one task is found connect to it
@@ -289,8 +287,7 @@ func ECSListTasks(c *cli.Context) error {
 
 	// Check response
 	if taskSelectedIndex == -1 {
-		fmt.Println("No task selected")
-		return nil
+		return cli.Exit("No task selected", 1)
 	}
 
 	// Check task status
@@ -327,10 +324,10 @@ func ECSListContainer(c *cli.Context) error {
 	// List availables service
 	containers, err := awslib.ECSListTaskContainers(currentSession, cluster, c.String("task"))
 	if err != nil {
-		return cli.Exit("Error during ECS task containers list: "+err.Error(), -1)
+		return cli.Exit("Error during ECS task containers list: "+err.Error(), 1)
 	}
 	if len(containers) == 0 {
-		return cli.Exit("No containers found", -1)
+		return cli.Exit("No containers found", 1)
 	}
 
 	// If only one container is found connect to it
@@ -365,8 +362,7 @@ func ECSListContainer(c *cli.Context) error {
 
 	// Check response
 	if containerSelectedIndex == -1 {
-		fmt.Println("\nNo container selected")
-		return nil
+		return cli.Exit("No container selected", 1)
 	}
 
 	// Set container ID

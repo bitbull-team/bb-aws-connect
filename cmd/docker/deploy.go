@@ -56,7 +56,7 @@ func Deploy(c *cli.Context) error {
 		fmt.Println("Login to registry..")
 		err = dockerlib.LoginToRegistry(c.String("registry"), c.String("username"), c.String("password"))
 		if err != nil {
-			return cli.Exit("Error during Docker registry login: "+err.Error(), -1)
+			return cli.Exit("Error during Docker registry login: "+err.Error(), 1)
 		}
 		fmt.Println("Logged to Docker registry!")
 	}
@@ -75,7 +75,7 @@ func Deploy(c *cli.Context) error {
 	fmt.Println("Building docker image..")
 	err = dockerlib.BuildImage(c.String("cwd"), c.String("image"), c.String("tag"), c.StringSlice("build-arg"))
 	if err != nil {
-		return cli.Exit("Error during Docker image build: "+err.Error(), -1)
+		return cli.Exit("Error during Docker image build: "+err.Error(), 1)
 	}
 	fmt.Println("Docker image built successfully!")
 
@@ -83,7 +83,7 @@ func Deploy(c *cli.Context) error {
 	fmt.Println("Pushing docker image..")
 	err = dockerlib.PushImage(c.String("image"), c.String("tag"))
 	if err != nil {
-		return cli.Exit("Error during Docker push build: "+err.Error(), -1)
+		return cli.Exit("Error during Docker push build: "+err.Error(), 1)
 	}
 	fmt.Println("Docker image pushed successfully!")
 
