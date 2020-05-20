@@ -12,8 +12,8 @@ require (
 )
 
 replace (
-	applib => ./../../lib/app
-	configlib => ./../../lib/config
-	filesystemlib => ./../../lib/filesystem
-	shelllib => ./../../lib/shell
+	applib => ./../../pkg/app
+	configlib => ./../../pkg/config
+	filesystemlib => ./../../pkg/filesystem
+	shelllib => ./../../pkg/shell
 )

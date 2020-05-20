@@ -10,7 +10,7 @@ require (
 )
 
 replace (
-	dockerlib => ./../../lib/docker
-	filesystemlib => ./../../lib/filesystem
-	shelllib => ./../../lib/shell
+	dockerlib => ./../../pkg/docker
+	filesystemlib => ./../../pkg/filesystem
+	shelllib => ./../../pkg/shell
 )

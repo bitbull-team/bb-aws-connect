@@ -13,7 +13,7 @@ require (
 )
 
 replace (
-	awslib => ./../../lib/aws
-	configlib => ./../../lib/config
-	shelllib => ./../../lib/shell
+	awslib => ./../../pkg/aws
+	configlib => ./../../pkg/config
+	shelllib => ./../../pkg/shell
 )

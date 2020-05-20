@@ -20,10 +20,10 @@ replace (
 	aws => ./cmd/aws
 	app => ./cmd/app
 
-	awslib => ./lib/aws
-	dockerlib => ./lib/docker
-	filesystemlib => ./lib/filesystem
-	shelllib => ./lib/shell
-	applib => ./lib/app
-	configlib => ./lib/config
+	awslib => ./pkg/aws
+	dockerlib => ./pkg/docker
+	filesystemlib => ./pkg/filesystem
+	shelllib => ./pkg/shell
+	applib => ./pkg/app
+	configlib => ./pkg/config
 )
