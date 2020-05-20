@@ -26,10 +26,9 @@ var config Config
 func CreateAWSSession(c *cli.Context) *session.Session {
 	// Check for AWS profile
 	profile := c.String("profile")
-	if len(profile) == 0 {
+	if len(profile) == 0 && len(config.AWS.Profile) != 0 {
 		profile = config.AWS.Profile
 	}
-	c.Set("profile", profile)
 
 	// Check for region
 	region := c.String("region")
@@ -57,7 +56,7 @@ func Commands() []*cli.Command {
 			Name:    "profile",
 			Aliases: []string{"p"},
 			Usage:   "AWS profile name",
-			EnvVars: []string{"AWS_PROFILE"},
+			EnvVars: []string{"AWS_PROFILE", "AWS_DEFAULT_PROFILE"},
 		},
 		&cli.StringFlag{
 			Name:    "region",

@@ -2,5 +2,5 @@ app:
   type: "go" # Application type, if not provided will be elaborated
 
 aws:
-  profile: default # AWS profile name to connect to
-  region: "eu-west-1" # AWS Region
+  #profile: default # AWS profile name to connect to
+  #region: "eu-west-1" # AWS Region
