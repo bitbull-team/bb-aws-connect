@@ -73,6 +73,7 @@ func Commands() []*cli.Command {
 				configlib.LoadConfig(c.String("config"), &config)
 				return nil
 			},
+			Flags: globalFlags,
 			Subcommands: []*cli.Command{
 				NewECSConnectCommand(globalFlags),
 				NewSSMConnectCommand(globalFlags),
