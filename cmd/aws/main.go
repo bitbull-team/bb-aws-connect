@@ -79,6 +79,7 @@ func Commands() []*cli.Command {
 				NewSSMConnectCommand(globalFlags),
 				NewSSMRunCommand(globalFlags),
 				NewSSMRunDocumentCommand(globalFlags),
+				NewSSMTunnelCommand(globalFlags),
 			},
 		},
 	}

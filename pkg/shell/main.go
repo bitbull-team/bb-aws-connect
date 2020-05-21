@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -54,14 +55,42 @@ func ExecuteCommand(name string, arg ...string) error {
 	return nil
 }
 
+// ExecuteCommandBackground execute a shell command in background
+func ExecuteCommandBackground(name string, arg ...string) (*exec.Cmd, io.ReadCloser, *bytes.Buffer, error) {
+	var stderr bytes.Buffer
+	cmd := exec.Command(name, arg...)
+	cmd.Stderr = &stderr
+	if filepath.Base(name) == name {
+		lp, err := exec.LookPath(name)
+		if err != nil {
+			return cmd, nil, &stderr, err
+		}
+		cmd.Path = lp
+	}
+
+	// create a pipe for the output of the script
+	cmdReader, err := cmd.StdoutPipe()
+	if err != nil {
+		return cmd, cmdReader, &stderr, err
+	}
+
+	// Start command
+	err = cmd.Start()
+	if err != nil {
+		return cmd, cmdReader, &stderr, err
+	}
+
+	return cmd, cmdReader, &stderr, nil
+}
+
 // ExecuteCommandForeground execute command in foreground
 func ExecuteCommandForeground(name string, arg ...string) error {
-	rawCmd := exec.Command(name, arg...)
-	rawCmd.Stdin = os.Stdin
-	rawCmd.Stdout = os.Stdout
-	rawCmd.Stderr = os.Stderr
+	cmd := exec.Command(name, arg...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 
-	err := rawCmd.Start()
+	err := cmd.Start()
 	if err != nil {
 		return err
 	}
@@ -74,7 +103,7 @@ func ExecuteCommandForeground(name string, arg ...string) error {
 
 	// Run Wait() in its own chan so we don't block
 	go func() {
-		err = rawCmd.Wait()
+		err = cmd.Wait()
 		doneChan <- struct{}{}
 	}()
 	// Here we block until command is done
@@ -82,7 +111,7 @@ func ExecuteCommandForeground(name string, arg ...string) error {
 		select {
 		case s := <-sigChan:
 			// user typed Ctrl-C, most likley meant for ssm-session pass through
-			rawCmd.Process.Signal(s)
+			cmd.Process.Signal(s)
 		case <-doneChan:
 			// command is done
 			return err
