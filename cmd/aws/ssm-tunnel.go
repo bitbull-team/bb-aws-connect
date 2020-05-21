@@ -2,7 +2,6 @@ package aws
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"math/rand"
 	"os/exec"
@@ -87,23 +86,19 @@ func SSMTunnel(c *cli.Context) error {
 	// Open SSM tunnel to SSH
 	_, err = SSMOpenSSHTunnel(c)
 	if err != nil {
-		return cli.Exit("Error opening SSM tunnel: "+err.Error(), 1)
+		return cli.Exit("Error opening SSH tunnel: "+err.Error(), 1)
 	}
 
 	// Notify user that now can connect to tunnel
-	fmt.Println(fmt.Sprintf("SSM tunnel to remote instance SSH opened on local port:  %s", c.String("local-port-ssh")))
+	fmt.Println(fmt.Sprintf("SSH tunnel to remote instance opened on local port: %s", c.String("local-port-ssh")))
 
 	// Open tunnel over SSH
-	_, err = OpenTunnelOverSSH(c)
+	fmt.Println(fmt.Sprintf("Tunnel to remote %s:%s is available on local port: %s", c.String("host"), c.String("port"), c.String("local-port")))
+	err = OpenTunnelOverSSH(c)
 	if err != nil {
 		return cli.Exit("Error opening tunnel over SSH: "+err.Error(), 1)
 	}
 
-	// Notify user that now can connect to tunnel
-	fmt.Println(fmt.Sprintf("SSH tunnel to remote %s:%s is available on local port: %s", c.String("host"), c.String("port"), c.String("local-port")))
-
-	// Keep tunnel processes running using a dummy command as entrypoint
-	shelllib.ExecuteCommandForeground("tail", "-f", "/dev/null")
 	return nil
 }
 
@@ -148,7 +143,7 @@ func SSMOpenSSHTunnel(c *cli.Context) (*exec.Cmd, error) {
 }
 
 // OpenTunnelOverSSH open a tunnel using an SSH session
-func OpenTunnelOverSSH(c *cli.Context) (*exec.Cmd, error) {
+func OpenTunnelOverSSH(c *cli.Context) error {
 	// Get parameters
 	key := c.String("key")
 	username := c.String("username")
@@ -168,19 +163,10 @@ func OpenTunnelOverSSH(c *cli.Context) (*exec.Cmd, error) {
 	}
 
 	// Start SSM session
-	cmd, cmdReader, stderr, err := shelllib.ExecuteCommandBackground("ssh", args...)
-	scanner := bufio.NewScanner(cmdReader)
-
-	// Wait until something is printed
-	scanner.Scan()
-
-	// Check if there is an error
-	errorStr := stderr.String()
-	if strings.Contains(errorStr, "Permission denied") {
-		return cmd, errors.New("incorrect SSH key or username")
-	} else if len(errorStr) != 0 {
-		return cmd, errors.New(errorStr)
+	err := shelllib.ExecuteCommandForeground("ssh", args...)
+	if err != nil {
+		return err
 	}
 
-	return cmd, err
+	return nil
 }
