@@ -71,6 +71,9 @@ func Commands() []*cli.Command {
 			Name: "aws",
 			Before: func(c *cli.Context) error {
 				configlib.LoadConfig(c.String("config"), &config)
+				// Store args into config, child commands cannot access it
+				config.AWS.Region = c.String("region")
+				config.AWS.Profile = c.String("profile")
 				return nil
 			},
 			Flags: globalFlags,
