@@ -8,6 +8,7 @@ import (
 	"shelllib"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/urfave/cli/v2"
 )
@@ -83,6 +84,13 @@ func SSMTunnel(c *cli.Context) error {
 		return err
 	}
 
+	// Check if SSH tunnel is enough
+	localPort := c.String("local-port")
+	onlySSH := c.String("port") == "22" && c.String("host") == "localhost"
+	if onlySSH == true {
+		c.Set("local-port-ssh", localPort)
+	}
+
 	// Open SSM tunnel to SSH
 	_, err = SSMOpenSSHTunnel(c)
 	if err != nil {
@@ -91,6 +99,15 @@ func SSMTunnel(c *cli.Context) error {
 
 	// Notify user that now can connect to tunnel
 	fmt.Println(fmt.Sprintf("SSH tunnel to remote instance opened on local port: %s", c.String("local-port-ssh")))
+
+	// Check if an additional SSH tunnel is required
+	if onlySSH == true {
+		err := shelllib.ExecuteCommandForeground("grep", "/dev/null")
+		if err != nil {
+			return err
+		}
+		return nil
+	}
 
 	// Open tunnel over SSH
 	fmt.Println(fmt.Sprintf("Tunnel to remote %s:%s is available on local port: %s", c.String("host"), c.String("port"), c.String("local-port")))
@@ -110,10 +127,14 @@ func SSMOpenSSHTunnel(c *cli.Context) (*exec.Cmd, error) {
 	instanceID := c.String("instance")
 
 	// Elaborate local port
-	maxPort := 65535
-	minPort := 49152
-	localPort := strconv.Itoa(rand.Intn(maxPort-minPort) + minPort)
-	c.Set("local-port-ssh", localPort)
+	localPort := c.String("local-port-ssh")
+	if len(localPort) == 0 {
+		maxPort := 65000
+		minPort := 50000
+		rand.Seed(time.Now().UnixNano())
+		localPort = strconv.Itoa(rand.Intn(maxPort-minPort) + minPort)
+		c.Set("local-port-ssh", localPort)
+	}
 
 	// Build arguments
 	args := []string{
@@ -154,12 +175,13 @@ func OpenTunnelOverSSH(c *cli.Context) error {
 
 	// Build arguments
 	args := []string{
-		"-i", key,
-		"-o", "StrictHostKeyChecking=no",
+		"-i", key, // SSH key
+		"-o", "StrictHostKeyChecking=no", //skip host key verification
 		"-p", localPortSSH,
 		fmt.Sprintf("%s@localhost", username),
 		"-L", fmt.Sprintf("%s:%s:%s", localPort, host, remotePort),
-		"-T",
+		"-T", // be quite
+		"-q", // hide warnings
 	}
 
 	// Start SSM session
