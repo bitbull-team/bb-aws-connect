@@ -155,9 +155,13 @@ func SSMStartSession(c *cli.Context) error {
 	args := []string{
 		"ssm", "start-session",
 		"--profile", profile,
-		"--region", region,
 		"--target", instanceID,
 		"--document-name", "AWS-StartInteractiveCommand",
+	}
+
+	// Set region only if provided
+	if len(region) > 0 {
+		args = append(args, "--region", region)
 	}
 
 	// Check command
