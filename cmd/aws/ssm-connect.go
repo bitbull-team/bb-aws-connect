@@ -112,7 +112,7 @@ func SSMSelectInstance(c *cli.Context) error {
 
 	// If only one instance is found connect to it
 	if len(instances) == 1 {
-		fmt.Println("Instace auto selected: ", *instances[0].ID)
+		fmt.Println("Instace auto selected:", *instances[0].ID)
 		c.Set("instance", *instances[0].ID)
 		return nil
 	}
