@@ -403,3 +403,69 @@ $ bb-cli aws ecs:connect --workdir /app --user www-data
 Starting session with SessionId: botocore-session-1592829669-05415380dd16a4f30
 www-data@ca9e7f769b75:/app$ 
 ```
+
+#### Open an SSH Tunnel to ECS Task's container
+
+```
+NAME:
+   bb-cli aws ssm:tunnel - Open a SSM tunnel to a remote host
+
+USAGE:
+   bb-cli aws ssm:tunnel [command options] [arguments...]
+
+OPTIONS:
+   --profile value, -p value       AWS profile name [$AWS_PROFILE, $AWS_DEFAULT_PROFILE]
+   --region value, -r value        AWS region [$AWS_DEFAULT_REGION]
+   --service value, -s value       Service Type to connect to (example: bastion, frontend, varnish)
+   --env value, -e value           Environment (example: test, stage, prod)
+   --instance value, -i value      Instace ID (example: i-xxxxxxxxxxxxxxxxx)
+   --host value, -o value          Remote host to open tunnel to (example: myexampledb.a1b2c3d4wxyz.us-west-2.rds.amazonaws.com) (default: "localhost")
+   --port value, --rp value        Remote port to open tunnel to (example: 22) (default: "22")
+   --local-port value, --lp value  Local port to bind to serve tunnel (example: 2222) (default: "2222")
+   --key value, -k value           SSH key to use to connect to instance (example: /path/my-key-pair.pem) (default: "~/.ssh/id_rsa")
+   --username value, -u value      SSH username to use to connect to instance (example: ec2-user) (default: "fabio") [$USER]
+   --help, -h                      show help (default: false)
+```
+
+This command will use [Systems Manager Session](https://aws.amazon.com/it/premiumsupport/knowledge-center/systems-manager-ssh-vpc-resources/) to open an SSH to a specific EC2 instance. 
+
+This command require a valid user created into the EC2 instance (or using the default "ec2-user") and the related SSH key (provided during EC2 creation).
+
+**Usage Example**
+
+open a SSH tunnel specify the user to connect to, (list and filter works as `ssm:connect` command)
+```
+bb-cli aws ssm:tunnel -s bastion -e test -u fabio.gollinucci
+```
+
+an SSH tunnel will be opened locally
+```
+Instace auto selected: i-07b032553d8f2c0f7
+SSH tunnel to remote instance opened on local port: 2222
+```
+
+you can now connect to SSH locally
+```
+ssh myuser@127.0.0.1 -p 2222
+```
+
+open a tunnel to a remote RDS instance
+```
+bb-cli aws ssm:tunnel --host myexampledb.a1b2c3d4wxyz.us-west-2.rds.amazonaws.com --port 3306 --key instance-key.pem --username ec2-user --local-port 3306
+```
+
+instance to connect to will be asked interacvly if not provided and second tunnel (for MySQL port) on the original SSH tunnel:
+```
+? Select an instance: 
+
+  Instace ID            IP address      Environment     ServiceType
+ i-0a9f68b9f8d96d0b1    10.0.1.81       stage   
+
+SSH tunnel to remote instance opened on local port: 56789
+Tunnel to remote myexampledb.a1b2c3d4wxyz.us-west-2.rds.amazonaws.com:3306 is available on local port: 3306
+```
+
+you can now connect to MySQL locally (use "127.0.0.1" and not "localhost", otherwise MySQL will try to use the local socket "/var/run/mysqld/mysqld.sock")
+```
+mysql -h 127.0.0.1 -u myadminuser -p myschema
+```
