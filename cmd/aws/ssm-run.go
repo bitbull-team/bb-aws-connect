@@ -190,7 +190,7 @@ func SSMSelectCommand(c *cli.Context) error {
 
 			scanner := bufio.NewScanner(file)
 			for scanner.Scan() {
-				command += scanner.Text()
+				command += scanner.Text() + "\n"
 			}
 
 			if err := scanner.Err(); err != nil {

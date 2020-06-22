@@ -60,7 +60,7 @@ This command allow you to connect to a remote EC2 instance using [Systems Manage
 **Usage Example**
 
 use interactive mode, list can be filter just typing something (search will be performed on all columns)
-```bash
+```
 $ bb-cli aws ssm:connect
 
 ? Select an instance: 
@@ -83,7 +83,7 @@ $ bb-cli aws ssm:connect
 ```
 
 pre-filter service type checking "ServiceType" tag value
-```bash
+```
 $ bb-cli aws ssm:connect -s cron
 
 ? Select an instance: 
@@ -97,16 +97,16 @@ $ bb-cli aws ssm:connect -s cron
 ```
 
 also filter by "Environment" tag, is only one instance is found will be auto-selected
-```bash
+```
 $ bb-cli aws ssm:connect -e stage -s cron
 Instace auto selected: i-0c9916aa684e69638
 
 Starting session with SessionId: botocore-session-1592822987-0fd0966b96e9fde39
-root@ip-172-31-2-57:/# 
+root@ip-172-31-2-57:/
 ```
 
 connect to specific EC2 instance
-```bash
+```
 $ bb-cli aws ssm:connect -i i-03edd0f3d32f34b58
 ```
 
@@ -193,7 +193,7 @@ Mon Jun 22 11:02:53 UTC 2020
 --------------------------------
 ```
 
-execute on all instance matching the filter (using `-a` or `--auto-select` parameters)
+execute "date" command on all instance matching the filter (using `-a` or `--auto-select` parameters)
 ```
 $ bb-cli aws ssm:run -a -e test "date"
 
@@ -209,6 +209,128 @@ Mon Jun 22 11:03:30 UTC 2020
 i-0d6634056d1f36a8a 	Success   
 
 Mon Jun 22 11:03:30 UTC 2020
+
+--------------------------------
+```
+
+execute a bash script (for example `my-script.sh`)
+```
+#!/bin/bash
+
+date
+```
+on a specific instances (or selected from the list or auto-selected)
+```
+$ bb-cli aws ssm:run -i i-0f28b75fc851bb344 -i i-0c9916aa684e69638 --file ./my-script.sh
+
+Waiting for command id  745e1051-291a-4445-bc8b-802d5b553b6e ..
+All commands ends successfully!
+
+--------------------------------
+i-0f28b75fc851bb344 	Success   
+
+Mon Jun 22 12:14:09 UTC 2020
+
+--------------------------------
+i-0c9916aa684e69638 	Success   
+
+Mon Jun 22 12:14:09 UTC 2020
+
+--------------------------------
+```
+
+#### Execute a SSM Document to remote EC2 instance
+
+```
+NAME:
+   bb-cli aws ssm:run:document - Run a SSM document to EC2 instances
+
+USAGE:
+   bb-cli aws ssm:run:document [command options] [arguments...]
+
+OPTIONS:
+   --profile value, -p value    AWS profile name (default: "easycoop") [$AWS_PROFILE, $AWS_DEFAULT_PROFILE]
+   --region value, -r value     AWS region [$AWS_DEFAULT_REGION]
+   --service value, -s value    Service Type (example: bastion, frontend, varnish)
+   --env value, -e value        Environment (example: test, stage, prod)
+   --instance value, -i value   Instace ID (example: i-xxxxxxxxxxxxxxxxx)
+   --auto-select, -a            Automatically select all instance listed without asking (default: false)
+   --self, -o                   SSM filter document with owner Self (default: false)
+   --private, -t                SSM filter document with owner Private (default: false)
+   --document value, -d value   SSM document name
+   --parameter value, -m value  SSM document parameter
+   --help, -h                   show help (default: false)
+```
+
+This command allow you to execute an already deployed [Systems Manager documents](https://docs.aws.amazon.com/systems-manager/latest/userguide/sysman-ssm-docs.html) to a remote EC2 instance and return the output.
+
+**Usage Example**
+
+use interactive mode to select a SSM Document
+```
+? Select a document:   [Use arrows to move, type to filter]
+> AWS-ASGEnterStandby
+  AWS-ASGExitStandby
+  AWS-ApplyAnsiblePlaybooks
+  AWS-ApplyChefRecipes
+  AWS-ApplyDSCMofs
+  AWS-ApplyPatchBaseline
+  AWS-AttachEBSVolume
+  AWS-AttachIAMToInstance
+  AWS-ConfigureAWSPackage
+  AWS-ConfigureCloudTrailLogging
+```
+
+filter only private documents
+```
+$ bb-cli aws ssm:run:document --private
+? Select a document:   [Use arrows to move, type to filter]
+> Archive-ZipCompress
+  Deploy-Clean
+  Archive-TarCompress
+  Archive-ZipExtract
+  Archive-TarExtract
+```
+
+or provide a specific document name
+```
+$ bb-cli aws ssm:run:document --document test-Dummy
+```
+
+document parameters will be asked in interactive mode (it show name and description)
+```
+? (Required) This is an required parameter. test
+
+? (Optional) This is an optional parameter. 
+
+? (Optional) This has a default value. DefaultValue
+
+? (Optional) This has a default value from Terraform project. TestValue
+
+? (Optional) This parameter has a validation, you can only set it to TestValue. TestValue
+
+? (Optional) This parameter has a validation, you can only write a numeric value. 1
+```
+
+then will ask for instance (same as `ssm:run` command), and execute it. At the end of execution the output will be showed
+```
+? Select an instance: 
+
+  Instace ID            IP address      Environment     ServiceType
+ i-0d6634056d1f36a8a    172.31.2.93     test            cron
+
+Waiting for command id  0c265d5f-fd9f-47a3-b434-ba5b152e1472 ..
+All commands ends successfully!
+
+--------------------------------
+i-0d6634056d1f36a8a     Success   
+
+2020-06-22-12:22:15 value from parameter RequiredParameter is: test
+2020-06-22-12:22:15 value from parameter OptionalParameter is: 
+2020-06-22-12:22:15 value from parameter ParameterWithDefault is: DefaultValue
+2020-06-22-12:22:15 value from parameter ParameterWithDefaultFromTemplate is: TestValue
+2020-06-22-12:22:15 value from parameter ParameterWithValidation is: TestValue
+2020-06-22-12:22:15 value from parameter ParameterWithValidationRegex is: 1
 
 --------------------------------
 ```
