@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"strings"
 	"syscall"
 )
 
@@ -41,6 +42,8 @@ func ExecuteCommand(name string, arg ...string) error {
 			fmt.Println(scanner.Text())
 		}
 	}()
+
+	LogCommandExecutionStart(cmd)
 
 	err = cmd.Start()
 	if err != nil {
@@ -74,6 +77,8 @@ func ExecuteCommandBackground(name string, arg ...string) (*exec.Cmd, io.ReadClo
 		return cmd, cmdReader, &stderr, err
 	}
 
+	LogCommandExecutionStart(cmd)
+
 	// Start command
 	err = cmd.Start()
 	if err != nil {
@@ -89,6 +94,8 @@ func ExecuteCommandForeground(name string, arg ...string) error {
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+
+	LogCommandExecutionStart(cmd)
 
 	err := cmd.Start()
 	if err != nil {
@@ -116,5 +123,17 @@ func ExecuteCommandForeground(name string, arg ...string) error {
 			// command is done
 			return err
 		}
+	}
+}
+
+// LogCommandExecutionStart log command execution start
+func LogCommandExecutionStart(c *exec.Cmd) {
+	debugMode := os.Getenv("BB_CLI_COMMAND_DEBUG")
+	if debugMode != "" {
+		fmt.Println("")
+		fmt.Println("----------------------------------------")
+		fmt.Println("Executing command: ", strings.Join(c.Args, " "))
+		fmt.Println("----------------------------------------")
+		fmt.Println("")
 	}
 }
