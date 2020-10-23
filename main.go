@@ -5,18 +5,16 @@ import (
 	"log"
 	"os"
 
-	"app"
-	"aws"
-	"docker"
+	"ecs"
+	"ssm"
 
 	"github.com/urfave/cli/v2"
 )
 
 func main() {
 	cmds := []*cli.Command{}
-	cmds = append(cmds, docker.Commands()...)
-	cmds = append(cmds, aws.Commands()...)
-	cmds = append(cmds, app.Commands()...)
+	cmds = append(cmds, ecs.Commands()...)
+	cmds = append(cmds, ssm.Commands()...)
 
 	cli.VersionPrinter = func(c *cli.Context) {
 		fmt.Println(
@@ -41,13 +39,13 @@ func main() {
 			"   .+-``+/`     `-+` `/+/`\n",
 			"      ",
 		)
-		fmt.Fprintf(c.App.Writer, "Bitbull CLI %s\n", c.App.Version)
+		fmt.Fprintf(c.App.Writer, "Bitbull AWS Connect CLI %s\n", c.App.Version)
 	}
 
 	cwd, _ := os.Getwd()
 	app := &cli.App{
-		Name:        "bb-cli",
-		Description: "Bitbull CLI",
+		Name:        "bb-aws-connect",
+		Description: "Bitbull AWS Connect CLI",
 		Version:     "VERSION", // this will be overridden during build phase
 		Commands:    cmds,
 		Flags: []cli.Flag{
@@ -58,7 +56,7 @@ func main() {
 			},
 			&cli.StringFlag{
 				Name:  "config",
-				Value: ".bb-cli.yml",
+				Value: ".bb-aws-connect.yml",
 				Usage: "Config file path",
 			},
 		},

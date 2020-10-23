@@ -1,0 +1,7 @@
+profile: default
+region: eu-west-1
+ssm:
+  shell: /bin/bash
+  user: root
+ecs:
+  cluster: default

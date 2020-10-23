@@ -1,27 +1,17 @@
-## AWS commands
+## SSM commands
 
-This category contain commands used to interact with AWS services.
+This category contain commands used to interact with AWS SSM service.
 
 ### Application configuration
 
-Configuration file (by default `.bb-cli.yml`) ha the following configurations:
+Configuration file (by default `.bb-aws-connect.yml`) ha the following configurations:
 ```yml
-aws:
-  profile: default # AWS CLI profile name
-  region: "eu-west-1" # AWS region
-
-  ecs:
-    cluster: default # ECS cluster name
+profile: default # AWS CLI profile name
+region: "eu-west-1" # AWS region
+ssm:
+   shell: /bin/bash # Shell to open when connecting to instance
+   user: root # User to open session with
 ```
-
-### Infrastructure configurations
-
-EC2 instance should have these tags to be able to filter them using `--env` and `--service` parameters:
-```
-Environment: stage/test/prod
-ServiceType: frontend/varnish/ssr/tool
-```
-no particular value is required, the field is free to be customized as desired.
 
 ### Commands
 
@@ -37,10 +27,10 @@ These options can be configured using `AWS_PROFILE`, `AWS_DEFAULT_PROFILE`, `AWS
 
 ```
 NAME:
-   bb-cli aws ssm:connect - Connect to an EC2 instance using SSM session
+   bb-aws-connect ssm connect - Connect to an EC2 instance using SSM session
 
 USAGE:
-   bb-cli aws ssm:connect [command options] [arguments...]
+   bb-aws-connect ssm connect [command options] [arguments...]
 
 OPTIONS:
    --profile value, -p value   AWS profile name [$AWS_PROFILE, $AWS_DEFAULT_PROFILE]
@@ -61,7 +51,7 @@ This command allow you to connect to a remote EC2 instance using [Systems Manage
 
 use interactive mode, list can be filter just typing something (search will be performed on all columns)
 ```
-$ bb-cli aws ssm:connect
+$ bb-aws-connect ssm connect
 
 ? Select an instance: 
 
@@ -84,7 +74,7 @@ $ bb-cli aws ssm:connect
 
 pre-filter service type checking "ServiceType" tag value
 ```
-$ bb-cli aws ssm:connect -s cron
+$ bb-aws-connect ssm connect -s cron
 
 ? Select an instance: 
 
@@ -98,7 +88,7 @@ $ bb-cli aws ssm:connect -s cron
 
 also filter by "Environment" tag, is only one instance is found will be auto-selected
 ```
-$ bb-cli aws ssm:connect -e stage -s cron
+$ bb-aws-connect ssm connect -e stage -s cron
 Instace auto selected: i-0c9916aa684e69638
 
 Starting session with SessionId: botocore-session-1592822987-0fd0966b96e9fde39
@@ -107,17 +97,17 @@ root@ip-172-31-2-57:/
 
 connect to specific EC2 instance
 ```
-$ bb-cli aws ssm:connect -i i-03edd0f3d32f34b58
+$ bb-aws-connect ssm connect -i i-03edd0f3d32f34b58
 ```
 
 #### Execute a command to remote EC2 instance
 
 ```
 NAME:
-   bb-cli aws ssm:run - Run command to EC2 instances using a SSM command
+   bb-aws-connect ssm run - Run command to EC2 instances using a SSM command
 
 USAGE:
-   bb-cli aws ssm:run [command options] [command to execute]
+   bb-aws-connect ssm run [command options] [command to execute]
 
 OPTIONS:
    --profile value, -p value   AWS profile name [$AWS_PROFILE, $AWS_DEFAULT_PROFILE]
@@ -136,7 +126,7 @@ This command allow you to execute a single command to a remote EC2 instance usin
 
 use interactive mode, multiple instance can be selected (command will be executed on all instance asynchronously)
 ```
-$ bb-cli aws ssm:run -e test
+$ bb-aws-connect ssm run -e test
 
 ? Select an instance: 
 
@@ -180,7 +170,7 @@ Mon Jun 22 11:02:00 UTC 2020
 
 one liner command for a single instance
 ```
-$ bb-cli aws ssm:run -e test -s cron "date"
+$ bb-aws-connect ssm run -e test -s cron "date"
 Instace auto selected:  i-0d6634056d1f36a8a
 Waiting for command id  456049a5-868e-4320-9c77-3cbfe362dbcd ..
 All commands ends successfully!
@@ -195,7 +185,7 @@ Mon Jun 22 11:02:53 UTC 2020
 
 execute "date" command on all instance matching the filter (using `-a` or `--auto-select` parameters)
 ```
-$ bb-cli aws ssm:run -a -e test "date"
+$ bb-aws-connect ssm run -a -e test "date"
 
 Waiting for command id  d5ef418f-5e9d-432d-af73-a8941df6fe4f ..
 All commands ends successfully!
@@ -221,7 +211,7 @@ date
 ```
 on a specific instances (or selected from the list or auto-selected)
 ```
-$ bb-cli aws ssm:run -i i-0f28b75fc851bb344 -i i-0c9916aa684e69638 --file ./my-script.sh
+$ bb-aws-connect ssm run -i i-0f28b75fc851bb344 -i i-0c9916aa684e69638 --file ./my-script.sh
 
 Waiting for command id  745e1051-291a-4445-bc8b-802d5b553b6e ..
 All commands ends successfully!
@@ -243,10 +233,10 @@ Mon Jun 22 12:14:09 UTC 2020
 
 ```
 NAME:
-   bb-cli aws ssm:run:document - Run a SSM document to EC2 instances
+   bb-aws-connect ssm run-document - Run a SSM document to EC2 instances
 
 USAGE:
-   bb-cli aws ssm:run:document [command options] [arguments...]
+   bb-aws-connect ssm run-document [command options] [arguments...]
 
 OPTIONS:
    --profile value, -p value    AWS profile name [$AWS_PROFILE, $AWS_DEFAULT_PROFILE]
@@ -283,7 +273,7 @@ use interactive mode to select a SSM Document
 
 filter only private documents
 ```
-$ bb-cli aws ssm:run:document --private
+$ bb-aws-connect ssm run-document --private
 ? Select a document:   [Use arrows to move, type to filter]
 > Archive-ZipCompress
   Deploy-Clean
@@ -294,7 +284,7 @@ $ bb-cli aws ssm:run:document --private
 
 or provide a specific document name
 ```
-$ bb-cli aws ssm:run:document --document test-Dummy
+$ bb-aws-connect ssm run-document --document test-Dummy
 ```
 
 document parameters will be asked in interactive mode (it show name and description)
@@ -335,83 +325,14 @@ i-0d6634056d1f36a8a     Success
 --------------------------------
 ```
 
-#### Open a shell to ECS Task's container
+#### Open an SSH Tunnel
 
 ```
 NAME:
-   bb-cli aws ecs:connect - Connect to an ECS Task container
+   bb-aws-connect ssm tunnel - Open a SSM tunnel to a remote host
 
 USAGE:
-   bb-cli aws ecs:connect [command options] [arguments...]
-
-OPTIONS:
-   --profile value, -p value  AWS profile name [$AWS_PROFILE, $AWS_DEFAULT_PROFILE]
-   --region value, -r value   AWS region [$AWS_DEFAULT_REGION]
-   --cluster value, -c value  Cluster Name
-   --service value, -s value  Service name (example: my-service)
-   --task value, -t value     Task ID (example: xxxxxxxxxxxxxxxxxxxx)
-   --workdir value, -w value  Docker exec 'workdir' parameters (example: /app)
-   --user value, -u value     Docker exec 'user' parameters (example: www-data)
-   --command value            Use a custom command as entrypoint (default: "/bin/bash")
-   --help, -h                 show help (default: false)
-```
-
-This command allow you to open an interactive shell using Systems Manager Session Manager directly into a [ECS](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/Welcome.html) Task container.
-
-**Usage Example**
-
-if cluster name is not provided will be asked interactively
-```
-$ bb-cli aws ecs:connect
-
-? Select a cluster:  [Use arrows to move, type to filter]
-> myproject-prod
-  myproject-stage
-```
-
-if service name is not provided will be asked interactively
-```
-? Select a service: 
-
-  Name                                          Desired Running
-  [Use arrows to move, type to filter]
-> myservice-1                                   1       1     
-  myservice-3                                   1       1     
-```
-
-if task name is not provided will be asked interactively, if service as only one task will be selected automatically
-```
-Task auto selected:  arn:aws:ecs:eu-west-1:0000000000:task/myproject-stage/d3833a6674344776897fda5d7012aa55
-```
-
-finally will be asked which container you want to connect to
-```
-? Select a container: 
-
-  Container Name                        Container ID      Status        Image
-  [Use arrows to move, type to filter]
-> task-1-logger                         8bd8e24d5e76     RUNNING        logger:latest
-  task-ic-1-cron                        ca9e7f769b75     RUNNING        000000000.dkr.ecr.eu-west-1.amazonaws.com/myproject/cron:1.0.0
-```
-
-shell will be opened with provided configuration
-```
-$ bb-cli aws ecs:connect --workdir /app --user www-data
-
-...
-
-Starting session with SessionId: botocore-session-1592829669-05415380dd16a4f30
-www-data@ca9e7f769b75:/app$ 
-```
-
-#### Open an SSH Tunnel to ECS Task's container
-
-```
-NAME:
-   bb-cli aws ssm:tunnel - Open a SSM tunnel to a remote host
-
-USAGE:
-   bb-cli aws ssm:tunnel [command options] [arguments...]
+   bb-aws-connect ssm tunnel [command options] [arguments...]
 
 OPTIONS:
    --profile value, -p value       AWS profile name [$AWS_PROFILE, $AWS_DEFAULT_PROFILE]
@@ -435,7 +356,7 @@ This command require a valid user created into the EC2 instance (or using the de
 
 open a SSH tunnel specify the user to connect to, (list and filter works as `ssm:connect` command)
 ```
-bb-cli aws ssm:tunnel -s bastion -e test -u fabio.gollinucci
+bb-aws-connect ssm tunnel -s bastion -e test -u fabio.gollinucci
 ```
 
 an SSH tunnel will be opened locally
@@ -451,7 +372,7 @@ ssh myuser@127.0.0.1 -p 2222
 
 open a tunnel to a remote RDS instance
 ```
-bb-cli aws ssm:tunnel --host myexampledb.a1b2c3d4wxyz.us-west-2.rds.amazonaws.com --port 3306 --key instance-key.pem --username ec2-user --local-port 3306
+bb-aws-connect ssm tunnel --host myexampledb.a1b2c3d4wxyz.us-west-2.rds.amazonaws.com --port 3306 --key instance-key.pem --username ec2-user --local-port 3306
 ```
 
 instance to connect to will be asked interacvly if not provided and second tunnel (for MySQL port) on the original SSH tunnel:

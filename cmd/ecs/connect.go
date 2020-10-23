@@ -1,20 +1,21 @@
-package aws
+package ecs
 
 import (
 	"awslib"
 	"fmt"
+	"ssm"
 	"strconv"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/urfave/cli/v2"
 )
 
-// NewECSConnectCommand return "ecs:connect" command
-func NewECSConnectCommand(globalFlags []cli.Flag) *cli.Command {
+// NewConnectCommand return "ecs:connect" command
+func NewConnectCommand(globalFlags []cli.Flag) *cli.Command {
 	return &cli.Command{
-		Name:   "ecs:connect",
+		Name:   "connect",
 		Usage:  "Connect to an ECS Task container",
-		Action: ECSConnect,
+		Action: Connect,
 		Flags: append(globalFlags, []cli.Flag{
 			&cli.StringFlag{
 				Name:    "cluster",
@@ -52,41 +53,40 @@ func NewECSConnectCommand(globalFlags []cli.Flag) *cli.Command {
 			&cli.StringFlag{
 				Name:  "command",
 				Usage: "Use a custom command as entrypoint",
-				Value: "/bin/bash",
 			},
 		}...),
 	}
 }
 
-// ECSConnect connect to an ECS container
-func ECSConnect(c *cli.Context) error {
+// Connect connect to an ECS container
+func Connect(c *cli.Context) error {
 	var err error
 	// List ECS clusters
-	err = ECSListClusters(c)
+	err = ListClusters(c)
 	if err != nil {
 		return err
 	}
 
 	// List ECS services
-	err = ECSListServices(c)
+	err = ListServices(c)
 	if err != nil {
 		return err
 	}
 
 	// List ECS tasks
-	err = ECSListTasks(c)
+	err = ListTasks(c)
 	if err != nil {
 		return err
 	}
 
 	// List ECS container
-	err = ECSListContainer(c)
+	err = ListContainer(c)
 	if err != nil {
 		return err
 	}
 
 	// connect to ECS container
-	err = ECSConnectToContainer(c)
+	err = ConnectToContainer(c)
 	if err != nil {
 		return err
 	}
@@ -94,8 +94,8 @@ func ECSConnect(c *cli.Context) error {
 	return nil
 }
 
-// ECSListClusters list ECS Clusters
-func ECSListClusters(c *cli.Context) error {
+// ListClusters list ECS Clusters
+func ListClusters(c *cli.Context) error {
 	// Check if service name is provided
 	clusterName := c.String("cluster")
 	if len(clusterName) != 0 {
@@ -104,12 +104,15 @@ func ECSListClusters(c *cli.Context) error {
 	}
 
 	// Create AWS session
-	currentSession := CreateAWSSession(c)
+	currentSession := awslib.CreateAWSSession(c, awslib.Config{
+		Profile: config.Profile,
+		Region:  config.Region,
+	})
 
 	// Get cluster name
 	cluster := c.String("cluster")
 	if len(cluster) == 0 {
-		cluster = config.AWS.ECS.Cluster
+		cluster = config.ECS.Cluster
 	}
 
 	// List available clusters
@@ -153,8 +156,8 @@ func ECSListClusters(c *cli.Context) error {
 	return nil
 }
 
-// ECSListServices list ECS Services
-func ECSListServices(c *cli.Context) error {
+// ListServices list ECS Services
+func ListServices(c *cli.Context) error {
 	// Check if service name is provided
 	serviceName := c.String("service")
 	if len(serviceName) != 0 {
@@ -163,12 +166,15 @@ func ECSListServices(c *cli.Context) error {
 	}
 
 	// Create AWS session
-	currentSession := CreateAWSSession(c)
+	currentSession := awslib.CreateAWSSession(c, awslib.Config{
+		Profile: config.Profile,
+		Region:  config.Region,
+	})
 
 	// Get cluster name
 	cluster := c.String("cluster")
 	if len(cluster) == 0 {
-		cluster = config.AWS.ECS.Cluster
+		cluster = config.ECS.Cluster
 	}
 
 	// List available service
@@ -225,8 +231,8 @@ func ECSListServices(c *cli.Context) error {
 	return nil
 }
 
-// ECSListTasks list ECS Tasks
-func ECSListTasks(c *cli.Context) error {
+// ListTasks list ECS Tasks
+func ListTasks(c *cli.Context) error {
 	// Check if task name is provided
 	taskID := c.String("task")
 	if len(taskID) != 0 {
@@ -235,12 +241,15 @@ func ECSListTasks(c *cli.Context) error {
 	}
 
 	// Create AWS session
-	currentSession := CreateAWSSession(c)
+	currentSession := awslib.CreateAWSSession(c, awslib.Config{
+		Profile: config.Profile,
+		Region:  config.Region,
+	})
 
 	// Get cluster name
 	cluster := c.String("cluster")
 	if len(cluster) == 0 {
-		cluster = config.AWS.ECS.Cluster
+		cluster = config.ECS.Cluster
 	}
 
 	// List available service
@@ -303,8 +312,8 @@ func ECSListTasks(c *cli.Context) error {
 	return nil
 }
 
-// ECSListContainer list ECS Tasks containers
-func ECSListContainer(c *cli.Context) error {
+// ListContainer list ECS Tasks containers
+func ListContainer(c *cli.Context) error {
 	// Check if container id is provided
 	containerID := c.String("container")
 	if len(containerID) != 0 {
@@ -313,12 +322,15 @@ func ECSListContainer(c *cli.Context) error {
 	}
 
 	// Create AWS session
-	currentSession := CreateAWSSession(c)
+	currentSession := awslib.CreateAWSSession(c, awslib.Config{
+		Profile: config.Profile,
+		Region:  config.Region,
+	})
 
 	// Get cluster name
 	cluster := c.String("cluster")
 	if len(cluster) == 0 {
-		cluster = config.AWS.ECS.Cluster
+		cluster = config.ECS.Cluster
 	}
 
 	// List availables service
@@ -370,8 +382,8 @@ func ECSListContainer(c *cli.Context) error {
 	return nil
 }
 
-// ECSConnectToContainer connect to select container
-func ECSConnectToContainer(c *cli.Context) error {
+// ConnectToContainer connect to select container
+func ConnectToContainer(c *cli.Context) error {
 	dockerExecCmd := "sudo docker exec"
 
 	user := c.String("user")
@@ -385,5 +397,5 @@ func ECSConnectToContainer(c *cli.Context) error {
 	}
 
 	c.Set("command", fmt.Sprintf("%s -it %s %s", dockerExecCmd, c.String("container"), c.String("command")))
-	return SSMStartSession(c)
+	return ssm.StartSession(c)
 }

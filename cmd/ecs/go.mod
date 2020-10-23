@@ -1,4 +1,4 @@
-module aws
+module ecs
 
 go 1.14
 
@@ -10,10 +10,12 @@ require (
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b
 	github.com/urfave/cli/v2 v2.2.0
 	shelllib v0.0.0
+	ssm v0.0.0-00010101000000-000000000000
 )
 
 replace (
 	awslib => ./../../pkg/aws
 	configlib => ./../../pkg/config
 	shelllib => ./../../pkg/shell
+	ssm => ./../ssm
 )

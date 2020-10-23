@@ -1,19 +1,15 @@
-## Commands
+## AWS commands
 
-This directory contain first level commands, for example:
-```bash
-bb-cli aws <command>
+This category contain commands used to interact with AWS services.
+
+- [ECS commands](ecs/README.md)
+- [SSM commands](ssm/README.md)
+
+### Infrastructure configurations
+
+EC2 instance should have these tags to be able to filter them using `--env` and `--service` parameters:
 ```
-you will find a directory named "aws" with sub commands declarations.
-
-This is used to group commands by categories
-```bash
-bb-cli aws <command> # AWS related commands
-bb-cli app <command> # Application manipulation/build related commands
+Environment: stage/test/prod
+ServiceType: frontend/varnish/ssr/tool
 ```
-
-## Categories
-
-* [Application](app/README.md)
-* [AWS](aws/README.md)
-* [Docker](docker/README.md)
+no particular value is required, the field is free to be customized as desired.

@@ -1,4 +1,4 @@
-package aws
+package ssm
 
 import (
 	"awslib"
@@ -12,13 +12,13 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-// NewSSMRunCommand return "ssm:run" command
-func NewSSMRunCommand(globalFlags []cli.Flag) *cli.Command {
+// NewRunCommand return "ssm:run" command
+func NewRunCommand(globalFlags []cli.Flag) *cli.Command {
 	return &cli.Command{
-		Name:      "ssm:run",
+		Name:      "run",
 		Usage:     "Run command to EC2 instances using a SSM command",
 		ArgsUsage: "[command to execute]",
-		Action:    SSMRun,
+		Action:    Run,
 		Flags: append(globalFlags, []cli.Flag{
 			&cli.StringFlag{
 				Name:    "service",
@@ -56,17 +56,17 @@ func NewSSMRunCommand(globalFlags []cli.Flag) *cli.Command {
 	}
 }
 
-// SSMRun run a command to an EC2 instance using SSM
-func SSMRun(c *cli.Context) error {
+// Run run a command to an EC2 instance using SSM
+func Run(c *cli.Context) error {
 	var err error
 	// Select multiple EC2 instances
-	err = SSMSelectInstances(c)
+	err = SelectInstances(c)
 	if err != nil {
 		return err
 	}
 
 	// Select command to run
-	err = SSMSelectCommand(c)
+	err = SelectCommand(c)
 	if err != nil {
 		return err
 	}
@@ -74,7 +74,7 @@ func SSMRun(c *cli.Context) error {
 	// Run SSM commands
 	c.Set("document", "AWS-RunShellScript")
 	commandRows := strings.Split(c.String("command"), "\n")
-	err = SSMRunCommands(c, map[string][]*string{
+	err = RunCommands(c, map[string][]*string{
 		"commands": aws.StringSlice(commandRows),
 	})
 	if err != nil {
@@ -84,8 +84,8 @@ func SSMRun(c *cli.Context) error {
 	return nil
 }
 
-// SSMSelectInstances select multiple instances
-func SSMSelectInstances(c *cli.Context) error {
+// SelectInstances select multiple instances
+func SelectInstances(c *cli.Context) error {
 	// Check if instance is provided
 	instanceIDs := c.StringSlice("instance")
 	if len(instanceIDs) != 0 {
@@ -94,7 +94,10 @@ func SSMSelectInstances(c *cli.Context) error {
 	}
 
 	// Create AWS session
-	currentSession := CreateAWSSession(c)
+	currentSession := awslib.CreateAWSSession(c, awslib.Config{
+		Profile: config.Profile,
+		Region:  config.Region,
+	})
 
 	// Build filters
 	var tagFilters []awslib.TagFilter
@@ -167,8 +170,8 @@ func SSMSelectInstances(c *cli.Context) error {
 	return nil
 }
 
-// SSMSelectCommand select SSM command
-func SSMSelectCommand(c *cli.Context) error {
+// SelectCommand select SSM command
+func SelectCommand(c *cli.Context) error {
 	var command string
 	scriptFile := c.String("file")
 
@@ -216,10 +219,13 @@ func SSMSelectCommand(c *cli.Context) error {
 	return nil
 }
 
-// SSMRunCommands execute command to remote instance
-func SSMRunCommands(c *cli.Context, parameters map[string][]*string) error {
+// RunCommands execute command to remote instance
+func RunCommands(c *cli.Context, parameters map[string][]*string) error {
 	// Create AWS session
-	currentSession := CreateAWSSession(c)
+	currentSession := awslib.CreateAWSSession(c, awslib.Config{
+		Profile: config.Profile,
+		Region:  config.Region,
+	})
 
 	// Execute SSM command
 	commandID, err := awslib.SSMExecuteCommand(
@@ -227,7 +233,7 @@ func SSMRunCommands(c *cli.Context, parameters map[string][]*string) error {
 		c.StringSlice("instance"),
 		c.String("document"),
 		parameters,
-		"Executed from bb-cli",
+		"Executed from bb-aws-connect",
 	)
 	if err != nil {
 		return cli.Exit("Error before SSM command execution: "+err.Error(), 1)

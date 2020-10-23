@@ -15,12 +15,12 @@ go run main.go --help
 
 To build CLI into an executable file run:
 ```bash
-go build -o bb-cli main.go
+go build -o bb-aws-connect main.go
 ```
 
 You can be able to execute file directly:
 ```bash
-./bb-cli --help
+./bb-aws-connect --help
 ```
 
 ### Install a dev version
@@ -28,11 +28,11 @@ You can be able to execute file directly:
 If you want to override your system installed CLI with development version. 
 Build it (if not already did):
 ```bash
-go build -o bb-cli main.go
+go build -o bb-aws-connect main.go
 ```
 and then install it into your system:
 ```bash
-sudo cp bb-cli /usr/local/bin/bb-cli
+sudo cp bb-aws-connect /usr/local/bin/bb-aws-connect
 ```
 
 ## Resources

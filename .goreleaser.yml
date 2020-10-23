@@ -1,9 +1,9 @@
 release:
 
 builds:
-- id: bb-cli
+- id: bb-aws-connect
   main: main.go
-  binary: bb-cli
+  binary: bb-aws-connect
   goos:
     - windows
     - darwin
@@ -15,7 +15,7 @@ builds:
 
 archives:
 - builds:
-  - bb-cli
+  - bb-aws-connect
   replacements:
     darwin: Darwin
     linux: Linux
@@ -40,7 +40,7 @@ nfpms:
   - license: MIT
     maintainer: Bitbull
     description: Bitbull CLI
-    homepage: https://github.com/daaru00/bb-cli/
+    homepage: https://github.com/bitbull-team/bb-aws-connect/
     suggests:
       - awscli
       - session-manager-plugin

@@ -1,4 +1,4 @@
-package aws
+package ssm
 
 import (
 	"bufio"
@@ -13,12 +13,12 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-// NewSSMTunnelCommand return "ssm:tunnel" command
-func NewSSMTunnelCommand(globalFlags []cli.Flag) *cli.Command {
+// NewTunnelCommand return "ssm:tunnel" command
+func NewTunnelCommand(globalFlags []cli.Flag) *cli.Command {
 	return &cli.Command{
-		Name:   "ssm:tunnel",
+		Name:   "tunnel",
 		Usage:  "Open a SSM tunnel to a remote host",
-		Action: SSMTunnel,
+		Action: Tunnel,
 		Flags: append(globalFlags, []cli.Flag{
 			&cli.StringFlag{
 				Name:    "service",
@@ -75,11 +75,11 @@ func NewSSMTunnelCommand(globalFlags []cli.Flag) *cli.Command {
 	}
 }
 
-// SSMTunnel open a tunnel to a remote host
-func SSMTunnel(c *cli.Context) error {
+// Tunnel open a tunnel to a remote host
+func Tunnel(c *cli.Context) error {
 	var err error
 	// Select EC2 instances
-	err = SSMSelectInstance(c)
+	err = SelectInstance(c)
 	if err != nil {
 		return err
 	}
@@ -92,7 +92,7 @@ func SSMTunnel(c *cli.Context) error {
 	}
 
 	// Open SSM tunnel to SSH
-	_, err = SSMOpenSSHTunnel(c)
+	_, err = OpenSSHTunnel(c)
 	if err != nil {
 		return cli.Exit("Error opening SSH tunnel: "+err.Error(), 1)
 	}
@@ -119,8 +119,8 @@ func SSMTunnel(c *cli.Context) error {
 	return nil
 }
 
-// SSMOpenSSHTunnel open a SSH tunnel using SSM session
-func SSMOpenSSHTunnel(c *cli.Context) (*exec.Cmd, error) {
+// OpenSSHTunnel open a SSH tunnel using SSM session
+func OpenSSHTunnel(c *cli.Context) (*exec.Cmd, error) {
 	// Get parameters
 	profile := c.String("profile")
 	region := c.String("region")

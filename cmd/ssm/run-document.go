@@ -1,4 +1,4 @@
-package aws
+package ssm
 
 import (
 	"awslib"
@@ -10,10 +10,10 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-// NewSSMRunDocumentCommand return "ssm:run:document" command
-func NewSSMRunDocumentCommand(globalFlags []cli.Flag) *cli.Command {
+// NewRunDocumentCommand return "ssm:run:document" command
+func NewRunDocumentCommand(globalFlags []cli.Flag) *cli.Command {
 	return &cli.Command{
-		Name:   "ssm:run:document",
+		Name:   "run-document",
 		Usage:  "Run a SSM document to EC2 instances",
 		Action: RunDocument,
 		Flags: append(globalFlags, []cli.Flag{
@@ -66,26 +66,26 @@ func RunDocument(c *cli.Context) error {
 	var err error
 
 	// Select document command
-	err = SSMSelectDocument(c)
+	err = SelectDocument(c)
 	if err != nil {
 		return err
 	}
 
 	// Check parameters
 	var parameters map[string][]*string
-	parameters, err = SSMCheckDocumentParameters(c)
+	parameters, err = CheckDocumentParameters(c)
 	if err != nil {
 		return err
 	}
 
 	// Select multiple EC2 instances
-	err = SSMSelectInstances(c)
+	err = SelectInstances(c)
 	if err != nil {
 		return err
 	}
 
 	// Run SSM commands
-	err = SSMRunCommands(c, parameters)
+	err = RunCommands(c, parameters)
 	if err != nil {
 		return err
 	}
@@ -93,8 +93,8 @@ func RunDocument(c *cli.Context) error {
 	return nil
 }
 
-// SSMSelectDocument list documents ro run
-func SSMSelectDocument(c *cli.Context) error {
+// SelectDocument list documents ro run
+func SelectDocument(c *cli.Context) error {
 	// Check if document is provided
 	document := c.String("document")
 	if len(document) != 0 {
@@ -102,7 +102,10 @@ func SSMSelectDocument(c *cli.Context) error {
 	}
 
 	// Create AWS session
-	currentSession := CreateAWSSession(c)
+	currentSession := awslib.CreateAWSSession(c, awslib.Config{
+		Profile: config.Profile,
+		Region:  config.Region,
+	})
 
 	// Check owner
 	owner := "Amazon"
@@ -152,13 +155,16 @@ func SSMSelectDocument(c *cli.Context) error {
 	return nil
 }
 
-// SSMCheckDocumentParameters check for parameters
-func SSMCheckDocumentParameters(c *cli.Context) (map[string][]*string, error) {
+// CheckDocumentParameters check for parameters
+func CheckDocumentParameters(c *cli.Context) (map[string][]*string, error) {
 	parametersValues := make(map[string][]*string)
 	commandParametersValues := make(map[string][]*string)
 
 	// Create AWS session
-	currentSession := CreateAWSSession(c)
+	currentSession := awslib.CreateAWSSession(c, awslib.Config{
+		Profile: config.Profile,
+		Region:  config.Region,
+	})
 
 	// List documents
 	parameters, err := awslib.SSMGetDocumentParameters(currentSession, c.String("document"))

@@ -128,7 +128,7 @@ func ExecuteCommandForeground(name string, arg ...string) error {
 
 // LogCommandExecutionStart log command execution start
 func LogCommandExecutionStart(c *exec.Cmd) {
-	debugMode := os.Getenv("BB_CLI_COMMAND_DEBUG")
+	debugMode := os.Getenv("BB_AWS_CONNECT_COMMAND_DEBUG")
 	if debugMode != "" {
 		fmt.Println("")
 		fmt.Println("----------------------------------------")

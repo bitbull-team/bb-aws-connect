@@ -1,4 +1,4 @@
-package aws
+package ssm
 
 import (
 	"awslib"
@@ -9,12 +9,12 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-// NewSSMConnectCommand return "ssm:connect" command
-func NewSSMConnectCommand(globalFlags []cli.Flag) *cli.Command {
+// NewConnectCommand return "ssm:connect" command
+func NewConnectCommand(globalFlags []cli.Flag) *cli.Command {
 	return &cli.Command{
-		Name:   "ssm:connect",
+		Name:   "connect",
 		Usage:  "Connect to an EC2 instance using SSM session",
-		Action: SSMConnect,
+		Action: Connect,
 		Flags: append(globalFlags, []cli.Flag{
 			&cli.StringFlag{
 				Name:    "service",
@@ -39,12 +39,10 @@ func NewSSMConnectCommand(globalFlags []cli.Flag) *cli.Command {
 			&cli.StringFlag{
 				Name:  "user",
 				Usage: "User to use in the session",
-				Value: "root",
 			},
 			&cli.StringFlag{
 				Name:  "shell",
 				Usage: "Shell used in session",
-				Value: "/bin/bash",
 			},
 			&cli.StringFlag{
 				Name:  "command",
@@ -54,17 +52,17 @@ func NewSSMConnectCommand(globalFlags []cli.Flag) *cli.Command {
 	}
 }
 
-// SSMConnect connect to an EC2 instance using SSM
-func SSMConnect(c *cli.Context) error {
+// Connect connect to an EC2 instance using SSM
+func Connect(c *cli.Context) error {
 	var err error
 	// Select EC2 instance
-	err = SSMSelectInstance(c)
+	err = SelectInstance(c)
 	if err != nil {
 		return err
 	}
 
 	// Start SSM session
-	err = SSMStartSession(c)
+	err = StartSession(c)
 	if err != nil {
 		return err
 	}
@@ -72,8 +70,8 @@ func SSMConnect(c *cli.Context) error {
 	return nil
 }
 
-// SSMSelectInstance list instances to connect to
-func SSMSelectInstance(c *cli.Context) error {
+// SelectInstance list instances to connect to
+func SelectInstance(c *cli.Context) error {
 	// Check if instance is provided
 	instanceID := c.String("instance")
 	if len(instanceID) != 0 {
@@ -82,7 +80,10 @@ func SSMSelectInstance(c *cli.Context) error {
 	}
 
 	// Create AWS session
-	currentSession := CreateAWSSession(c)
+	currentSession := awslib.CreateAWSSession(c, awslib.Config{
+		Profile: config.Profile,
+		Region:  config.Region,
+	})
 
 	// Build filters
 	var tagFilters []awslib.TagFilter
@@ -144,8 +145,8 @@ func SSMSelectInstance(c *cli.Context) error {
 	return nil
 }
 
-// SSMStartSession connect to a instance
-func SSMStartSession(c *cli.Context) error {
+// StartSession connect to a instance
+func StartSession(c *cli.Context) error {
 	// Get parameters
 	profile := c.String("profile")
 	region := c.String("region")
@@ -170,7 +171,16 @@ func SSMStartSession(c *cli.Context) error {
 		// Additional arguments
 		cwd := c.String("cwd")
 		user := c.String("user")
+		if len(user) == 0 {
+			user = config.SSM.User
+		}
 		shell := c.String("shell")
+		if len(shell) == 0 {
+			shell = config.SSM.Shell
+		}
+		if len(shell) == 0 {
+			shell = "/bin/sh"
+		}
 
 		// Build extra arguments
 		if cwd != "" || user != "" || shell != "" {
