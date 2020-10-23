@@ -39,7 +39,7 @@ changelog:
 nfpms:
   - license: MIT
     maintainer: Bitbull
-    description: Bitbull CLI
+    description: Bitbull AWS Connect CLI
     homepage: https://github.com/bitbull-team/bb-aws-connect/
     suggests:
       - awscli
