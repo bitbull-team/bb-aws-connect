@@ -1,7 +1,20 @@
+# Global configurations
+
 profile: default
 region: eu-west-1
+
+# SSM command configurations
+
 ssm:
   shell: /bin/bash
-  user: root
+  user: www-data
+  cwd: '/var/www/html'
+
+# ECS command configurations
+
 ecs:
   cluster: default
+  session:
+    shell: /bin/bash
+    user: root
+    workdir: '/tmp/'

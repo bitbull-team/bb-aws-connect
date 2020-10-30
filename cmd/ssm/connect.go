@@ -34,7 +34,6 @@ func NewConnectCommand(globalFlags []cli.Flag) *cli.Command {
 			&cli.StringFlag{
 				Name:  "cwd",
 				Usage: "Current working directory (example: /var/www/)",
-				Value: "/",
 			},
 			&cli.StringFlag{
 				Name:  "user",
@@ -169,11 +168,11 @@ func StartSession(c *cli.Context) error {
 	command := c.String("command")
 	if len(command) == 0 {
 		// Additional arguments
-		cwd := c.String("cwd")
 		user := c.String("user")
 		if len(user) == 0 {
 			user = config.SSM.User
 		}
+
 		shell := c.String("shell")
 		if len(shell) == 0 {
 			shell = config.SSM.Shell
@@ -182,12 +181,23 @@ func StartSession(c *cli.Context) error {
 			shell = "/bin/sh"
 		}
 
+		cwd := c.String("cwd")
+		if len(cwd) == 0 {
+			if len(config.SSM.Cwd) > 0 {
+				cwd = config.SSM.Cwd
+			} else {
+				cwd = "~"
+			}
+		}
+
 		// Build extra arguments
 		if cwd != "" || user != "" || shell != "" {
 			// Change CWD
 			if cwd != "" {
 				command = fmt.Sprintf("cd %s", cwd)
 			}
+
+			println(cwd)
 
 			// Concatenate CWD and user/shell
 			if (user != "" || shell != "") && len(command) > 0 {

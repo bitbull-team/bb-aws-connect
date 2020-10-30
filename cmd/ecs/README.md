@@ -10,6 +10,10 @@ profile: default # AWS CLI profile name
 region: "eu-west-1" # AWS region
 ecs:
   cluster: default # ECS cluster name
+  session:
+    shell: /bin/bash # command to execute on Docker exec
+    user: root # User to execute command with
+    workdir: /tmp/ # working directory
 ```
 
 ### Commands

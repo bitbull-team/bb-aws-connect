@@ -387,15 +387,28 @@ func ConnectToContainer(c *cli.Context) error {
 	dockerExecCmd := "sudo docker exec"
 
 	user := c.String("user")
+	if len(user) == 0 {
+		user = config.ECS.Session.User
+	}
 	if len(user) > 0 {
 		dockerExecCmd += fmt.Sprintf(" --user %s", user)
 	}
 
 	workdir := c.String("workdir")
+	if len(workdir) == 0 {
+		workdir = config.ECS.Session.Workdir
+	}
 	if len(workdir) > 0 {
 		dockerExecCmd += fmt.Sprintf(" --workdir %s", workdir)
 	}
 
-	c.Set("command", fmt.Sprintf("%s -it %s %s", dockerExecCmd, c.String("container"), c.String("command")))
+	command := c.String("command")
+	if len(command) == 0 && len(config.ECS.Session.Shell) > 0 {
+		command = config.ECS.Session.Shell
+	} else {
+		command = "/bin/sh"
+	}
+
+	c.Set("command", fmt.Sprintf("%s -it %s %s", dockerExecCmd, c.String("container"), command))
 	return ssm.StartSession(c)
 }

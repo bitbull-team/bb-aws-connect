@@ -12,6 +12,11 @@ type Config struct {
 	Region  string
 	ECS     struct {
 		Cluster string
+		Session struct {
+			User    string
+			Shell   string
+			Workdir string
+		}
 	}
 }
 

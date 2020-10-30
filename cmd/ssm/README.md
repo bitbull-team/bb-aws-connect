@@ -11,6 +11,7 @@ region: "eu-west-1" # AWS region
 ssm:
    shell: /bin/bash # Shell to open when connecting to instance
    user: root # User to open session with
+   cwd: /tmp/ # Command current working directory
 ```
 
 ### Commands

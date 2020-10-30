@@ -13,6 +13,7 @@ type Config struct {
 	SSM     struct {
 		User  string
 		Shell string
+		Cwd   string
 	}
 }
 
