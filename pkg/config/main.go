@@ -45,6 +45,8 @@ func LoadConfig(path string, config interface{}) error {
 	switch extension {
 	case ".yml":
 		parser = NewYAMLParser(content)
+	case ".yaml":
+		parser = NewYAMLParser(content)
 	case ".json":
 		parser = NewJSONParser(content)
 	default:
