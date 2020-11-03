@@ -197,8 +197,6 @@ func StartSession(c *cli.Context) error {
 				command = fmt.Sprintf("cd %s", cwd)
 			}
 
-			println(cwd)
-
 			// Concatenate CWD and user/shell
 			if (user != "" || shell != "") && len(command) > 0 {
 				command += " && "
