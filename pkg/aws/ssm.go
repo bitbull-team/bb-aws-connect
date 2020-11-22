@@ -133,7 +133,7 @@ func SSMListDocuments(ses *session.Session, owner string) ([]SSMDocument, error)
 	var documents []SSMDocument
 	ssmSvc.ListDocumentsPages(&ssm.ListDocumentsInput{
 		Filters: []*ssm.DocumentKeyValuesFilter{
-			&ssm.DocumentKeyValuesFilter{
+			{
 				Key: aws.String("Owner"),
 				Values: aws.StringSlice([]string{
 					owner,
