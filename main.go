@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
-	"ecs"
-	"ssm"
+	"github.com/bitbull-team/bb-aws-connect/cmd/ecs"
+	"github.com/bitbull-team/bb-aws-connect/cmd/ssm"
 
 	"github.com/urfave/cli/v2"
 )

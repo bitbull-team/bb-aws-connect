@@ -1,14 +1,14 @@
 package ssm
 
 import (
-	"awslib"
 	"bufio"
 	"fmt"
 	"os"
 	"strings"
 
+	"github.com/bitbull-team/bb-aws-connect/pkg/aws"
+
 	"github.com/AlecAivazis/survey/v2"
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/urfave/cli/v2"
 )
 
@@ -94,30 +94,30 @@ func SelectInstances(c *cli.Context) error {
 	}
 
 	// Create AWS session
-	currentSession := awslib.CreateAWSSession(c, awslib.Config{
-		Profile: config.Profile,
-		Region:  config.Region,
+	currentSession := aws.CreateAWSSession(c, aws.Config{
+		Profile: globalConfig.Profile,
+		Region:  globalConfig.Region,
 	})
 
 	// Build filters
-	var tagFilters []awslib.TagFilter
+	var tagFilters []aws.TagFilter
 	env := c.String("env")
 	if env != "" {
-		tagFilters = append(tagFilters, awslib.TagFilter{
+		tagFilters = append(tagFilters, aws.TagFilter{
 			Name:  "Environment",
 			Value: env,
 		})
 	}
 	serviceType := c.String("service")
 	if serviceType != "" {
-		tagFilters = append(tagFilters, awslib.TagFilter{
+		tagFilters = append(tagFilters, aws.TagFilter{
 			Name:  "ServiceType",
 			Value: serviceType,
 		})
 	}
 
 	// List available instance
-	instances, err := awslib.EC2ListInstances(currentSession, tagFilters)
+	instances, err := aws.EC2ListInstances(currentSession, tagFilters)
 	if err != nil {
 		return cli.Exit("Error during EC2 instance list: "+err.Error(), 1)
 	}
@@ -222,13 +222,13 @@ func SelectCommand(c *cli.Context) error {
 // RunCommands execute command to remote instance
 func RunCommands(c *cli.Context, parameters map[string][]*string) error {
 	// Create AWS session
-	currentSession := awslib.CreateAWSSession(c, awslib.Config{
-		Profile: config.Profile,
-		Region:  config.Region,
+	currentSession := aws.CreateAWSSession(c, aws.Config{
+		Profile: globalConfig.Profile,
+		Region:  globalConfig.Region,
 	})
 
 	// Execute SSM command
-	commandID, err := awslib.SSMExecuteCommand(
+	commandID, err := aws.SSMExecuteCommand(
 		currentSession,
 		c.StringSlice("instance"),
 		c.String("document"),
@@ -241,7 +241,7 @@ func RunCommands(c *cli.Context, parameters map[string][]*string) error {
 
 	// Wait until all commands ends
 	fmt.Println("Waiting for command id ", *commandID, "..")
-	responses, allSuccess, errWait := awslib.SSMWaitCommand(currentSession, commandID)
+	responses, allSuccess, errWait := aws.SSMWaitCommand(currentSession, commandID)
 	if errWait != nil {
 		return cli.Exit("Error during SSM command execution: "+errWait.Error(), 1)
 	}

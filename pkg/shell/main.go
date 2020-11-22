@@ -1,4 +1,4 @@
-package shelllib
+package shell
 
 import (
 	"bufio"

@@ -1,4 +1,4 @@
-package awslib
+package aws
 
 import (
 	"os"
@@ -45,4 +45,9 @@ func CreateAWSSession(c *cli.Context, config Config) *session.Session {
 		SharedConfigState: session.SharedConfigEnable,
 		Config:            awsConfig,
 	}))
+}
+
+// StringSlice converts a slice of string values into a slice of
+func StringSlice(src []string) []*string {
+	return aws.StringSlice(src)
 }

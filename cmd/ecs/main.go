@@ -1,8 +1,7 @@
 package ecs
 
 import (
-	"configlib"
-
+	"github.com/bitbull-team/bb-aws-connect/pkg/config"
 	"github.com/urfave/cli/v2"
 )
 
@@ -21,7 +20,7 @@ type Config struct {
 }
 
 // Global config
-var config Config
+var globalConfig Config
 
 // Commands - Return all commands
 func Commands() []*cli.Command {
@@ -45,10 +44,10 @@ func Commands() []*cli.Command {
 			Name:  "ecs",
 			Usage: "AWS ECS Commands",
 			Before: func(c *cli.Context) error {
-				configlib.LoadConfig(c.String("config"), &config)
+				config.LoadConfig(c.String("config"), &globalConfig)
 				// Store args into config, child commands cannot access it
-				config.Region = c.String("region")
-				config.Profile = c.String("profile")
+				globalConfig.Region = c.String("region")
+				globalConfig.Profile = c.String("profile")
 				return nil
 			},
 			Flags: globalFlags,

@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"math/rand"
 	"os/exec"
-	"shelllib"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/bitbull-team/bb-aws-connect/pkg/shell"
 	"github.com/urfave/cli/v2"
 )
 
@@ -102,7 +102,7 @@ func Tunnel(c *cli.Context) error {
 
 	// Check if an additional SSH tunnel is required
 	if onlySSH == true {
-		err := shelllib.ExecuteCommandForeground("grep", "/dev/null")
+		err := shell.ExecuteCommandForeground("grep", "/dev/null")
 		if err != nil {
 			return err
 		}
@@ -147,7 +147,7 @@ func OpenSSHTunnel(c *cli.Context) (*exec.Cmd, error) {
 	}
 
 	// Start SSM session
-	cmd, cmdReader, _, err := shelllib.ExecuteCommandBackground("aws", args...)
+	cmd, cmdReader, _, err := shell.ExecuteCommandBackground("aws", args...)
 	if err != nil {
 		return cmd, err
 	}
@@ -185,7 +185,7 @@ func OpenTunnelOverSSH(c *cli.Context) error {
 	}
 
 	// Start SSM session
-	err := shelllib.ExecuteCommandForeground("ssh", args...)
+	err := shell.ExecuteCommandForeground("ssh", args...)
 	if err != nil {
 		return err
 	}

@@ -1,10 +1,11 @@
 package ecs
 
 import (
-	"awslib"
 	"fmt"
-	"ssm"
 	"strconv"
+
+	"github.com/bitbull-team/bb-aws-connect/cmd/ssm"
+	"github.com/bitbull-team/bb-aws-connect/pkg/aws"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/urfave/cli/v2"
@@ -104,19 +105,19 @@ func ListClusters(c *cli.Context) error {
 	}
 
 	// Create AWS session
-	currentSession := awslib.CreateAWSSession(c, awslib.Config{
-		Profile: config.Profile,
-		Region:  config.Region,
+	currentSession := aws.CreateAWSSession(c, aws.Config{
+		Profile: globalConfig.Profile,
+		Region:  globalConfig.Region,
 	})
 
 	// Get cluster name
 	cluster := c.String("cluster")
 	if len(cluster) == 0 {
-		cluster = config.ECS.Cluster
+		cluster = globalConfig.ECS.Cluster
 	}
 
 	// List available clusters
-	clusters, err := awslib.ECSListClusters(currentSession)
+	clusters, err := aws.ECSListClusters(currentSession)
 	if err != nil {
 		return cli.Exit("Error during ECS clusters list: "+err.Error(), 1)
 	}
@@ -166,19 +167,19 @@ func ListServices(c *cli.Context) error {
 	}
 
 	// Create AWS session
-	currentSession := awslib.CreateAWSSession(c, awslib.Config{
-		Profile: config.Profile,
-		Region:  config.Region,
+	currentSession := aws.CreateAWSSession(c, aws.Config{
+		Profile: globalConfig.Profile,
+		Region:  globalConfig.Region,
 	})
 
 	// Get cluster name
 	cluster := c.String("cluster")
 	if len(cluster) == 0 {
-		cluster = config.ECS.Cluster
+		cluster = globalConfig.ECS.Cluster
 	}
 
 	// List available service
-	services, err := awslib.ECSListServices(currentSession, cluster)
+	services, err := aws.ECSListServices(currentSession, cluster)
 	if err != nil {
 		return cli.Exit("Error during ECS services list: "+err.Error(), 1)
 	}
@@ -241,19 +242,19 @@ func ListTasks(c *cli.Context) error {
 	}
 
 	// Create AWS session
-	currentSession := awslib.CreateAWSSession(c, awslib.Config{
-		Profile: config.Profile,
-		Region:  config.Region,
+	currentSession := aws.CreateAWSSession(c, aws.Config{
+		Profile: globalConfig.Profile,
+		Region:  globalConfig.Region,
 	})
 
 	// Get cluster name
 	cluster := c.String("cluster")
 	if len(cluster) == 0 {
-		cluster = config.ECS.Cluster
+		cluster = globalConfig.ECS.Cluster
 	}
 
 	// List available service
-	tasks, err := awslib.ECSListServiceTasks(currentSession, cluster, c.String("service"))
+	tasks, err := aws.ECSListServiceTasks(currentSession, cluster, c.String("service"))
 	if err != nil {
 		return cli.Exit("Error during ECS tasks list: "+err.Error(), 1)
 	}
@@ -322,19 +323,19 @@ func ListContainer(c *cli.Context) error {
 	}
 
 	// Create AWS session
-	currentSession := awslib.CreateAWSSession(c, awslib.Config{
-		Profile: config.Profile,
-		Region:  config.Region,
+	currentSession := aws.CreateAWSSession(c, aws.Config{
+		Profile: globalConfig.Profile,
+		Region:  globalConfig.Region,
 	})
 
 	// Get cluster name
 	cluster := c.String("cluster")
 	if len(cluster) == 0 {
-		cluster = config.ECS.Cluster
+		cluster = globalConfig.ECS.Cluster
 	}
 
 	// List availables service
-	containers, err := awslib.ECSListTaskContainers(currentSession, cluster, c.String("task"))
+	containers, err := aws.ECSListTaskContainers(currentSession, cluster, c.String("task"))
 	if err != nil {
 		return cli.Exit("Error during ECS task containers list: "+err.Error(), 1)
 	}
@@ -388,7 +389,7 @@ func ConnectToContainer(c *cli.Context) error {
 
 	user := c.String("user")
 	if len(user) == 0 {
-		user = config.ECS.Session.User
+		user = globalConfig.ECS.Session.User
 	}
 	if len(user) > 0 {
 		dockerExecCmd += fmt.Sprintf(" --user %s", user)
@@ -396,15 +397,15 @@ func ConnectToContainer(c *cli.Context) error {
 
 	workdir := c.String("workdir")
 	if len(workdir) == 0 {
-		workdir = config.ECS.Session.Workdir
+		workdir = globalConfig.ECS.Session.Workdir
 	}
 	if len(workdir) > 0 {
 		dockerExecCmd += fmt.Sprintf(" --workdir %s", workdir)
 	}
 
 	command := c.String("command")
-	if len(command) == 0 && len(config.ECS.Session.Shell) > 0 {
-		command = config.ECS.Session.Shell
+	if len(command) == 0 && len(globalConfig.ECS.Session.Shell) > 0 {
+		command = globalConfig.ECS.Session.Shell
 	} else {
 		command = "/bin/sh"
 	}

@@ -1,9 +1,10 @@
 package ssm
 
 import (
-	"awslib"
 	"fmt"
-	"shelllib"
+
+	"github.com/bitbull-team/bb-aws-connect/pkg/aws"
+	"github.com/bitbull-team/bb-aws-connect/pkg/shell"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/urfave/cli/v2"
@@ -79,30 +80,30 @@ func SelectInstance(c *cli.Context) error {
 	}
 
 	// Create AWS session
-	currentSession := awslib.CreateAWSSession(c, awslib.Config{
-		Profile: config.Profile,
-		Region:  config.Region,
+	currentSession := aws.CreateAWSSession(c, aws.Config{
+		Profile: globalConfig.Profile,
+		Region:  globalConfig.Region,
 	})
 
 	// Build filters
-	var tagFilters []awslib.TagFilter
+	var tagFilters []aws.TagFilter
 	env := c.String("env")
 	if env != "" {
-		tagFilters = append(tagFilters, awslib.TagFilter{
+		tagFilters = append(tagFilters, aws.TagFilter{
 			Name:  "Environment",
 			Value: env,
 		})
 	}
 	serviceType := c.String("service")
 	if serviceType != "" {
-		tagFilters = append(tagFilters, awslib.TagFilter{
+		tagFilters = append(tagFilters, aws.TagFilter{
 			Name:  "ServiceType",
 			Value: serviceType,
 		})
 	}
 
 	// List available instance
-	instances, err := awslib.EC2ListInstances(currentSession, tagFilters)
+	instances, err := aws.EC2ListInstances(currentSession, tagFilters)
 	if err != nil {
 		return cli.Exit("Error during EC2 instance list: "+err.Error(), 1)
 	}
@@ -170,12 +171,12 @@ func StartSession(c *cli.Context) error {
 		// Additional arguments
 		user := c.String("user")
 		if len(user) == 0 {
-			user = config.SSM.User
+			user = globalConfig.SSM.User
 		}
 
 		shell := c.String("shell")
 		if len(shell) == 0 {
-			shell = config.SSM.Shell
+			shell = globalConfig.SSM.Shell
 		}
 		if len(shell) == 0 {
 			shell = "/bin/sh"
@@ -183,8 +184,8 @@ func StartSession(c *cli.Context) error {
 
 		cwd := c.String("cwd")
 		if len(cwd) == 0 {
-			if len(config.SSM.Cwd) > 0 {
-				cwd = config.SSM.Cwd
+			if len(globalConfig.SSM.Cwd) > 0 {
+				cwd = globalConfig.SSM.Cwd
 			} else {
 				cwd = "~"
 			}
@@ -219,6 +220,6 @@ func StartSession(c *cli.Context) error {
 	}
 
 	// Start SSM session
-	shelllib.ExecuteCommandForeground("aws", args...)
+	shell.ExecuteCommandForeground("aws", args...)
 	return nil
 }

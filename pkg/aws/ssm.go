@@ -1,4 +1,4 @@
-package awslib
+package aws
 
 import (
 	"time"

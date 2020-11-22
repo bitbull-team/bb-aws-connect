@@ -1,12 +1,12 @@
 package ssm
 
 import (
-	"awslib"
 	"fmt"
 	"strings"
 
+	"github.com/bitbull-team/bb-aws-connect/pkg/aws"
+
 	"github.com/AlecAivazis/survey/v2"
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/urfave/cli/v2"
 )
 
@@ -102,9 +102,9 @@ func SelectDocument(c *cli.Context) error {
 	}
 
 	// Create AWS session
-	currentSession := awslib.CreateAWSSession(c, awslib.Config{
-		Profile: config.Profile,
-		Region:  config.Region,
+	currentSession := aws.CreateAWSSession(c, aws.Config{
+		Profile: globalConfig.Profile,
+		Region:  globalConfig.Region,
 	})
 
 	// Check owner
@@ -117,7 +117,7 @@ func SelectDocument(c *cli.Context) error {
 	}
 
 	// List documents
-	documents, err := awslib.SSMListDocuments(currentSession, owner)
+	documents, err := aws.SSMListDocuments(currentSession, owner)
 	if err != nil {
 		return cli.Exit("Error during SSM documents list: "+err.Error(), 1)
 	}
@@ -161,13 +161,13 @@ func CheckDocumentParameters(c *cli.Context) (map[string][]*string, error) {
 	commandParametersValues := make(map[string][]*string)
 
 	// Create AWS session
-	currentSession := awslib.CreateAWSSession(c, awslib.Config{
-		Profile: config.Profile,
-		Region:  config.Region,
+	currentSession := aws.CreateAWSSession(c, aws.Config{
+		Profile: globalConfig.Profile,
+		Region:  globalConfig.Region,
 	})
 
 	// List documents
-	parameters, err := awslib.SSMGetDocumentParameters(currentSession, c.String("document"))
+	parameters, err := aws.SSMGetDocumentParameters(currentSession, c.String("document"))
 	if err != nil {
 		return commandParametersValues, cli.Exit("Error during SSM document parameters list: "+err.Error(), 1)
 	}
