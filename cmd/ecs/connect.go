@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/bitbull-team/bb-aws-connect/cmd/ssm"
-	"github.com/bitbull-team/bb-aws-connect/pkg/aws"
+	"github.com/bitbull-team/bb-aws-connect/internal/aws"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/urfave/cli/v2"

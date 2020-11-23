@@ -3,8 +3,8 @@ package ssm
 import (
 	"fmt"
 
-	"github.com/bitbull-team/bb-aws-connect/pkg/aws"
-	"github.com/bitbull-team/bb-aws-connect/pkg/shell"
+	"github.com/bitbull-team/bb-aws-connect/internal/aws"
+	"github.com/bitbull-team/bb-aws-connect/internal/shell"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/urfave/cli/v2"

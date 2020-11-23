@@ -1,7 +1,7 @@
 package ecs
 
 import (
-	"github.com/bitbull-team/bb-aws-connect/pkg/config"
+	"github.com/bitbull-team/bb-aws-connect/internal/config"
 	"github.com/urfave/cli/v2"
 )
 

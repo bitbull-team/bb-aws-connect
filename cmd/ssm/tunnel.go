@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bitbull-team/bb-aws-connect/pkg/shell"
+	"github.com/bitbull-team/bb-aws-connect/internal/shell"
 	"github.com/urfave/cli/v2"
 )
 
