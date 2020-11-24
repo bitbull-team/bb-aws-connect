@@ -20,22 +20,7 @@ type Config struct {
 var globalConfig Config
 
 // Commands - Return all commands
-func Commands() []*cli.Command {
-	globalFlags := []cli.Flag{
-		&cli.StringFlag{
-			Name:    "profile",
-			Aliases: []string{"p"},
-			Usage:   "AWS profile name",
-			EnvVars: []string{"AWS_PROFILE", "AWS_DEFAULT_PROFILE"},
-		},
-		&cli.StringFlag{
-			Name:    "region",
-			Aliases: []string{"r"},
-			Usage:   "AWS region",
-			EnvVars: []string{"AWS_DEFAULT_REGION"},
-		},
-	}
-
+func Commands(globalFlags []cli.Flag) []*cli.Command {
 	return []*cli.Command{
 		{
 			Name:  "ssm",

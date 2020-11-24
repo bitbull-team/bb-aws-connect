@@ -12,9 +12,24 @@ import (
 )
 
 func main() {
+	globalFlags := []cli.Flag{
+		&cli.StringFlag{
+			Name:    "profile",
+			Aliases: []string{"p"},
+			Usage:   "AWS profile name",
+			EnvVars: []string{"AWS_PROFILE", "AWS_DEFAULT_PROFILE"},
+		},
+		&cli.StringFlag{
+			Name:    "region",
+			Aliases: []string{"r"},
+			Usage:   "AWS region",
+			EnvVars: []string{"AWS_DEFAULT_REGION"},
+		},
+	}
+
 	cmds := []*cli.Command{}
-	cmds = append(cmds, ecs.Commands()...)
-	cmds = append(cmds, ssm.Commands()...)
+	cmds = append(cmds, ecs.Commands(globalFlags)...)
+	cmds = append(cmds, ssm.Commands(globalFlags)...)
 
 	cli.VersionPrinter = func(c *cli.Context) {
 		fmt.Println(
@@ -48,7 +63,7 @@ func main() {
 		Description: "Bitbull AWS Connect CLI",
 		Version:     "VERSION", // this will be overridden during build phase
 		Commands:    cmds,
-		Flags: []cli.Flag{
+		Flags: append(globalFlags,
 			&cli.StringFlag{
 				Name:  "root",
 				Value: cwd,
@@ -58,8 +73,7 @@ func main() {
 				Name:  "config",
 				Value: ".bb-aws-connect.yml",
 				Usage: "Config file path",
-			},
-		},
+			}),
 		Before: func(c *cli.Context) error {
 			if c.String("root") != "" {
 				os.Chdir(c.String("root"))
