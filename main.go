@@ -1,8 +1,8 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/bitbull-team/bb-aws-connect/cmd/ecs"
@@ -23,7 +23,7 @@ func main() {
 			Name:    "region",
 			Aliases: []string{"r"},
 			Usage:   "AWS region",
-			EnvVars: []string{"AWS_DEFAULT_REGION"},
+			EnvVars: []string{"AWS_REGION", "AWS_DEFAULT_REGION"},
 		},
 	}
 
@@ -75,20 +75,22 @@ func main() {
 				Usage: "Config file path",
 			}),
 		Before: func(c *cli.Context) error {
-			if c.String("root") != "" {
-				os.Chdir(c.String("root"))
-				_, err := os.Getwd()
+			newCwd := c.String("root")
+			if newCwd != "" && newCwd != cwd {
+				err := os.Chdir(newCwd)
 				if err != nil {
-					fmt.Println("Cannot change CWD: ", err.Error())
+					return errors.New("Cannot change CWD: " + err.Error())
 				}
 			}
 			return nil
 		},
 		EnableBashCompletion: true,
+		ExitErrHandler:       func(c *cli.Context, err error) {},
 	}
 
 	err := app.Run(os.Args)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Fprintln(os.Stderr, err.Error())
+		os.Exit(1)
 	}
 }
