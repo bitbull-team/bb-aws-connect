@@ -16,7 +16,6 @@ type Config struct {
 	}
 }
 
-// Global config
 var globalConfig Config
 
 // Commands - Return all commands
@@ -27,9 +26,12 @@ func Commands(globalFlags []cli.Flag) []*cli.Command {
 			Usage: "AWS SSM Commands",
 			Before: func(c *cli.Context) error {
 				config.LoadConfig(c.String("config"), &globalConfig)
-				// Store args into config, child commands cannot access it
-				globalConfig.Region = c.String("region")
-				globalConfig.Profile = c.String("profile")
+				if len(c.String("region")) > 0 {
+					globalConfig.Region = c.String("region")
+				}
+				if len(c.String("profile")) > 0 {
+					globalConfig.Profile = c.String("profile")
+				}
 				return nil
 			},
 			Flags: globalFlags,
