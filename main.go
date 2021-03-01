@@ -61,6 +61,8 @@ func main() {
 	app := &cli.App{
 		Name:        "bb-aws-connect",
 		Description: "Bitbull AWS Connect CLI",
+		Usage:       "Connect to AWS resources (EC2 Instances and ECS Tasks) using SSM Session",
+		UsageText:   "bb-aws-connect [global options] command [command options] [arguments...]",
 		Version:     "VERSION", // this will be overridden during build phase
 		Commands:    cmds,
 		Flags: append(globalFlags,
@@ -75,6 +77,15 @@ func main() {
 				Usage: "Config file path",
 			}),
 		Before: func(c *cli.Context) error {
+			// Set global options to sub commands
+			if len(c.String("profile")) > 0 {
+				os.Setenv("AWS_PROFILE", c.String("profile"))
+			}
+			if len(c.String("region")) > 0 {
+				os.Setenv("AWS_REGION", c.String("region"))
+			}
+
+			// Set new working directory
 			newCwd := c.String("root")
 			if newCwd != "" && newCwd != cwd {
 				err := os.Chdir(newCwd)
