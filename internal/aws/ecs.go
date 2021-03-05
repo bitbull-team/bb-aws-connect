@@ -1,6 +1,8 @@
 package aws
 
 import (
+	"sync"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ecs"
@@ -98,29 +100,61 @@ func ECSListServices(ses *session.Session, cluster string) ([]ECSService, error)
 		return true // iterate over all pages
 	})
 
+	// Setup service channel
+	errs := make(chan error, len(serviceArns))
+	services := make(chan *ecs.Service, len(serviceArns))
+
+	// Setup wait group
+	var waitGroup sync.WaitGroup
+
 	// Retrieve ECS services details
-	var formattedServices []ECSService
-	var services []*ecs.Service
 	chunkSize := 10
 	for i := 0; i < len(serviceArns); i += chunkSize {
+		// Prepare chunk
 		end := i + chunkSize
-
 		if end > len(serviceArns) {
 			end = len(serviceArns)
 		}
+		serviceArnsChunk := serviceArns[i:end]
 
-		describeResult, describeErr := ecsSvc.DescribeServices(&ecs.DescribeServicesInput{
-			Cluster:  aws.String(cluster),
-			Services: serviceArns[i:end],
-		})
-		if describeErr != nil {
-			return formattedServices, describeErr
+		// Execute parallel deploy
+		waitGroup.Add(1)
+		go func(sac []*string) {
+			defer waitGroup.Done()
+
+			res, err := ecsSvc.DescribeServices(&ecs.DescribeServicesInput{
+				Cluster:  aws.String(cluster),
+				Services: sac,
+			})
+
+			errs <- err
+
+			for _, s := range res.Services {
+				services <- s
+			}
+
+		}(serviceArnsChunk)
+	}
+
+	// Wait until all requests end
+	waitGroup.Wait()
+
+	// Close channels
+	close(errs)
+	close(services)
+
+	// Check error
+	for i := 0; i < len(serviceArns); i++ {
+		err := <-errs
+		if err != nil {
+			return nil, err
 		}
-		services = append(services, describeResult.Services...)
 	}
 
 	// Format service
-	for _, service := range services {
+	var formattedServices []ECSService
+	for i := 0; i < len(serviceArns); i++ {
+		service := <-services
 		formattedServices = append(formattedServices, ECSService{
 			Name:         service.ServiceName,
 			DesiredCount: service.DesiredCount,
