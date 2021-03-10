@@ -92,7 +92,8 @@ func ECSListServices(ses *session.Session, cluster string) ([]ECSService, error)
 	ecsSvc := ecs.New(ses)
 	serviceArns := make([]*string, 0)
 	ecsSvc.ListServicesPages(&ecs.ListServicesInput{
-		Cluster: aws.String(cluster),
+		Cluster:    aws.String(cluster),
+		MaxResults: aws.Int64(100),
 	}, func(page *ecs.ListServicesOutput, lastPage bool) bool {
 		for _, serviceArn := range page.ServiceArns {
 			serviceArns = append(serviceArns, serviceArn)
