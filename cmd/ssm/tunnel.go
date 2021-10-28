@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"math/rand"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -173,6 +174,18 @@ func OpenTunnelOverSSH(c *cli.Context) error {
 	host := c.String("host")
 	remotePort := c.String("port")
 
+	// Check key existence
+	stats, err := os.Stat(key)
+	if err != nil {
+		return cli.Exit("Key file provided does not exist", 1)
+	}
+
+	// Check key permissions
+	perms := stats.Mode().String()
+	if perms != "-rw-------" && perms != "-r--------" {
+		return cli.Exit("Invalid key file permissions, should be 600 or 400", 1)
+	}
+
 	// Build arguments
 	args := []string{
 		"-i", key, // SSH key
@@ -185,7 +198,7 @@ func OpenTunnelOverSSH(c *cli.Context) error {
 	}
 
 	// Start SSM session
-	err := shell.ExecuteCommandForeground("ssh", args...)
+	err = shell.ExecuteCommandForeground("ssh", args...)
 	if err != nil {
 		return err
 	}
