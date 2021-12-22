@@ -30,7 +30,7 @@ func NewRunDocumentCommand(globalFlags []cli.Flag) *cli.Command {
 			&cli.StringSliceFlag{
 				Name:    "instance",
 				Aliases: []string{"i"},
-				Usage:   "Instace ID (example: i-xxxxxxxxxxxxxxxxx)",
+				Usage:   "Instace ID (example: i-xxxxxxxxxxxxxxxxx or auto)",
 			},
 			&cli.BoolFlag{
 				Name:    "auto-select",

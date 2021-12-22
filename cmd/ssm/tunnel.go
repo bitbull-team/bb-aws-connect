@@ -34,7 +34,7 @@ func NewTunnelCommand(globalFlags []cli.Flag) *cli.Command {
 			&cli.StringFlag{
 				Name:    "instance",
 				Aliases: []string{"i"},
-				Usage:   "Instace ID (example: i-xxxxxxxxxxxxxxxxx)",
+				Usage:   "Instace ID (example: i-xxxxxxxxxxxxxxxxx or auto)",
 			},
 			&cli.StringFlag{
 				Name:    "host",

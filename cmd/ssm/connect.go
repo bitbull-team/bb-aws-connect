@@ -30,7 +30,7 @@ func NewConnectCommand(globalFlags []cli.Flag) *cli.Command {
 			&cli.StringFlag{
 				Name:    "instance",
 				Aliases: []string{"i"},
-				Usage:   "Instace ID (example: i-xxxxxxxxxxxxxxxxx)",
+				Usage:   "Instace ID (example: i-xxxxxxxxxxxxxxxxx or auto)",
 			},
 			&cli.StringFlag{
 				Name:  "cwd",
@@ -74,7 +74,7 @@ func Connect(c *cli.Context) error {
 func SelectInstance(c *cli.Context) error {
 	// Check if instance is provided
 	instanceID := c.String("instance")
-	if len(instanceID) != 0 {
+	if len(instanceID) != 0 && instanceID != "auto" {
 		// Start SSM session
 		return nil
 	}
@@ -111,18 +111,18 @@ func SelectInstance(c *cli.Context) error {
 		return cli.Exit("No instances found", 1)
 	}
 
-	// If only one instance is found connect to it
-	if len(instances) == 1 {
+	// If only one instance is found or auto-select mode was used, connect to it
+	if len(instances) == 1 || instanceID == "auto" {
 		fmt.Println("Instace auto selected:", *instances[0].ID)
 		c.Set("instance", *instances[0].ID)
 		return nil
 	}
 
 	// Build table
-	header := fmt.Sprintf("%-20s\t%-15s\t%s\t%s", "Instace ID", "IP address", "Environment", "ServiceType")
+	header := fmt.Sprintf("%-20s\t%-20s\t%-15s\t%s\t%s", "Instace ID", "Instace Name", "IP Address", "Environment", "Service")
 	var options []string
 	for _, instance := range instances {
-		options = append(options, fmt.Sprintf("%-20s\t%-15s\t%-8s\t%s", *instance.ID, *instance.IP, *instance.Environment, *instance.ServiceType))
+		options = append(options, fmt.Sprintf("%-20s\t%-20s\t%-15s\t%-8s\t%s", *instance.ID, *instance.Name, *instance.IP, *instance.Environment, *instance.ServiceType))
 	}
 
 	// Ask selection

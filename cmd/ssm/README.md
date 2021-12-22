@@ -38,7 +38,7 @@ OPTIONS:
    --region value, -r value    AWS region [$AWS_DEFAULT_REGION]
    --service value, -s value   Service Type (example: bastion, frontend, varnish)
    --env value, -e value       Environment (example: test, stage, prod)
-   --instance value, -i value  Instace ID (example: i-xxxxxxxxxxxxxxxxx)
+   --instance value, -i value  Instace ID (example: i-xxxxxxxxxxxxxxxxx or auto)
    --cwd value                 Current working directory (example: /var/www/) (default: "/")
    --user value                User to use in the session (default: "root")
    --shell value               Shell used in session (default: "/bin/bash")
@@ -115,7 +115,7 @@ OPTIONS:
    --region value, -r value    AWS region [$AWS_DEFAULT_REGION]
    --service value, -s value   Service Type (example: bastion, frontend, varnish)
    --env value, -e value       Environment (example: test, stage, prod)
-   --instance value, -i value  Instace ID (example: i-xxxxxxxxxxxxxxxxx)
+   --instance value, -i value  Instace ID (example: i-xxxxxxxxxxxxxxxxx or auto)
    --file value                Script file path to execute (example: ./my-script.sh)
    --auto-select, -a           Automatically select all instance listed without asking (default: false)
    --help, -h                  show help (default: false)
@@ -244,7 +244,7 @@ OPTIONS:
    --region value, -r value     AWS region [$AWS_DEFAULT_REGION]
    --service value, -s value    Service Type (example: bastion, frontend, varnish)
    --env value, -e value        Environment (example: test, stage, prod)
-   --instance value, -i value   Instace ID (example: i-xxxxxxxxxxxxxxxxx)
+   --instance value, -i value   Instace ID (example: i-xxxxxxxxxxxxxxxxx or auto)
    --auto-select, -a            Automatically select all instance listed without asking (default: false)
    --self, -o                   SSM filter document with owner Self (default: false)
    --private, -t                SSM filter document with owner Private (default: false)
@@ -340,7 +340,7 @@ OPTIONS:
    --region value, -r value        AWS region [$AWS_DEFAULT_REGION]
    --service value, -s value       Service Type to connect to (example: bastion, frontend, varnish)
    --env value, -e value           Environment (example: test, stage, prod)
-   --instance value, -i value      Instace ID (example: i-xxxxxxxxxxxxxxxxx)
+   --instance value, -i value      Instace ID (example: i-xxxxxxxxxxxxxxxxx or auto)
    --host value, -o value          Remote host to open tunnel to (example: myexampledb.a1b2c3d4wxyz.us-west-2.rds.amazonaws.com) (default: "localhost")
    --port value, --rp value        Remote port to open tunnel to (example: 22) (default: "22")
    --local-port value, --lp value  Local port to bind to serve tunnel (example: 2222) (default: "2222")
