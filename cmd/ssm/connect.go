@@ -119,10 +119,10 @@ func SelectInstance(c *cli.Context) error {
 	}
 
 	// Build table
-	header := fmt.Sprintf("%-20s\t%-20s\t%-15s\t%s\t%s", "Instace ID", "Instace Name", "IP Address", "Environment", "Service")
+	header := fmt.Sprintf("%-20s\t%-15s\t%-25s", "Instace ID", "IP Address", "Instace Name")
 	var options []string
 	for _, instance := range instances {
-		options = append(options, fmt.Sprintf("%-20s\t%-20s\t%-15s\t%-8s\t%s", *instance.ID, *instance.Name, *instance.IP, *instance.Environment, *instance.ServiceType))
+		options = append(options, fmt.Sprintf("%-20s\t%-15s\t%-25s", *instance.ID, *instance.IP, *instance.Name))
 	}
 
 	// Ask selection
