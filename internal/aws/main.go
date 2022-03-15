@@ -29,10 +29,8 @@ func CreateAWSSession(c *cli.Context, config Config) *session.Session {
 		awsConfig.Region = aws.String(c.String("region"))
 	} else if len(region) == 0 && len(config.Region) != 0 {
 		awsConfig.Region = aws.String(config.Region)
-	} else {
-		awsConfig.Region = aws.String("eu-west-1")
+		c.Set("region", *awsConfig.Region)
 	}
-	c.Set("region", *awsConfig.Region)
 
 	// Check for debug mode
 	debugMode := os.Getenv("BB_AWS_CONNECT_AWS_DEBUG")
