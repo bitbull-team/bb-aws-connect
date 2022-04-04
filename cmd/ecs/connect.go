@@ -6,6 +6,7 @@ import (
 
 	"github.com/bitbull-team/bb-aws-connect/cmd/ssm"
 	"github.com/bitbull-team/bb-aws-connect/internal/aws"
+	"github.com/bitbull-team/bb-aws-connect/internal/shell"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/urfave/cli/v2"
@@ -86,10 +87,18 @@ func Connect(c *cli.Context) error {
 		return err
 	}
 
-	// connect to ECS container
-	err = ConnectToContainer(c)
-	if err != nil {
-		return err
+	if c.String("instance") != "" {
+		// connect to ECS container
+		err = ConnectToContainer(c)
+		if err != nil {
+			return err
+		}
+	} else {
+		// connect to Fargate ECS container
+		err = ConnectToFargateContainer(c)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -266,7 +275,9 @@ func ListTasks(c *cli.Context) error {
 	if len(tasks) == 1 {
 		fmt.Println("Task auto selected: ", *tasks[0].Arn)
 		c.Set("task", *tasks[0].Arn)
-		c.Set("instance", *tasks[0].ContainerInstance.Ec2InstanceId)
+		if tasks[0].ContainerInstance != nil {
+			c.Set("instance", *tasks[0].ContainerInstance.Ec2InstanceId)
+		}
 		return nil
 	}
 
@@ -315,6 +326,9 @@ func ListTasks(c *cli.Context) error {
 
 // ListContainer list ECS Tasks containers
 func ListContainer(c *cli.Context) error {
+	instance := c.String("instance")
+	isFargate := instance == ""
+
 	// Check if container id is provided
 	containerID := c.String("container")
 	if len(containerID) != 0 {
@@ -345,8 +359,19 @@ func ListContainer(c *cli.Context) error {
 
 	// If only one container is found connect to it
 	if len(containers) == 1 {
-		fmt.Println("Container auto selected: ", *containers[0].RuntimeId)
-		c.Set("container", *containers[0].RuntimeId)
+		var container = containers[0]
+		if container == nil {
+			return cli.Exit("No containers found", 1)
+		}
+
+		if isFargate {
+			c.Set("container", *container.Name)
+		} else {
+			c.Set("container", *container.RuntimeId)
+		}
+
+		fmt.Println("Container auto selected: ", c.String("container"))
+
 		return nil
 	}
 
@@ -379,7 +404,13 @@ func ListContainer(c *cli.Context) error {
 	}
 
 	// Set container ID
-	c.Set("container", *containers[containerSelectedIndex].RuntimeId)
+	var container = *containers[containerSelectedIndex]
+	if isFargate {
+		c.Set("container", *container.Name)
+	} else {
+		c.Set("container", *container.RuntimeId)
+	}
+
 	return nil
 }
 
@@ -412,4 +443,40 @@ func ConnectToContainer(c *cli.Context) error {
 
 	c.Set("command", fmt.Sprintf("%s -it %s %s", dockerExecCmd, c.String("container"), command))
 	return ssm.StartSession(c)
+}
+
+// ConnectToFargateContainer connect to select container using Fargate
+func ConnectToFargateContainer(c *cli.Context) error {
+
+	// Get parameters
+	profile := c.String("profile")
+	region := c.String("region")
+	clusterName := c.String("cluster")
+	task := c.String("task")
+	container := c.String("container")
+
+	// Get command to execute
+	command := c.String("shell")
+	if len(command) == 0 {
+		command = "/bin/sh"
+	}
+
+	// Build arguments
+	args := []string{
+		"ecs", "execute-command",
+		"--profile", profile,
+		"--cluster", clusterName,
+		"--task", task,
+		"--container", container,
+		"--command", command,
+		"--interactive",
+	}
+
+	// Set region only if provided
+	if len(region) > 0 {
+		args = append(args, "--region", region)
+	}
+
+	// Start SSM session
+	return shell.ExecuteCommandForeground("aws", args...)
 }

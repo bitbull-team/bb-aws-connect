@@ -78,7 +78,11 @@ these tags can be applied for a single instance or an AutoScalingGroup. Read mor
 
 EC2 instances must have the SystemManager agent installed and connected, follow the [AWS documentation](https://docs.aws.amazon.com/systems-manager/latest/userguide/sysman-install-ssm-agent.html) and complete the steps.
 
-### IAM permissions
+### ECS Fargate
+
+ECS Service that use Fargate need to must comply with the use of [ECS Exec](https://docs.aws.amazon.com/AmazonECS/latest/userguide/ecs-exec.html).
+
+### Client IAM permissions
 
 IAM user that execute commands require the following permissions:
 ```json

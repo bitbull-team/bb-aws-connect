@@ -216,18 +216,21 @@ func ECSListServiceTasks(ses *session.Session, cluster string, serviceName strin
 		taskDefinitionArns = append(taskDefinitionArns, task.TaskDefinitionArn)
 	}
 
-	// Retrieve ECS cluster instances details
-	describeInstancesResult, describeInstancesErr := ecsSvc.DescribeContainerInstances(&ecs.DescribeContainerInstancesInput{
-		Cluster:            aws.String(cluster),
-		ContainerInstances: instanceArns,
-	})
-	if describeInstancesErr != nil {
-		return formattedTasks, describeInstancesErr
-	}
-
 	containerInstances := make(map[string]*ecs.ContainerInstance)
-	for _, containerInstance := range describeInstancesResult.ContainerInstances {
-		containerInstances[*containerInstance.ContainerInstanceArn] = containerInstance
+	if len(instanceArns) > 0 && instanceArns[0] != nil {
+		// Retrieve ECS cluster instances details
+		describeInstancesResult, describeInstancesErr := ecsSvc.DescribeContainerInstances(&ecs.DescribeContainerInstancesInput{
+			Cluster:            aws.String(cluster),
+			ContainerInstances: instanceArns,
+		})
+		if describeInstancesErr != nil {
+			return formattedTasks, describeInstancesErr
+		}
+
+		// Elaborate instance map
+		for _, containerInstance := range describeInstancesResult.ContainerInstances {
+			containerInstances[*containerInstance.ContainerInstanceArn] = containerInstance
+		}
 	}
 
 	// Enrich task
@@ -243,9 +246,15 @@ func ECSListServiceTasks(ses *session.Session, cluster string, serviceName strin
 			}
 			taskDefinitions[*task.TaskDefinitionArn] = describeTaskDefinitionResult.TaskDefinition
 		}
+
+		var containerInstance *ecs.ContainerInstance
+		if task.ContainerInstanceArn != nil {
+			containerInstance = containerInstances[*task.ContainerInstanceArn]
+		}
+
 		formattedTasks = append(formattedTasks, ECSTask{
 			Arn:               task.TaskArn,
-			ContainerInstance: containerInstances[*task.ContainerInstanceArn],
+			ContainerInstance: containerInstance,
 			HealthStatus:      task.HealthStatus,
 			Status:            task.LastStatus,
 			TaskDefinition:    taskDefinitions[*task.TaskDefinitionArn],
