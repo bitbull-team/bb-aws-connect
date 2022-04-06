@@ -456,7 +456,7 @@ func ConnectToFargateContainer(c *cli.Context) error {
 	container := c.String("container")
 
 	// Get command to execute
-	command := c.String("shell")
+	command := c.String("command")
 	if len(command) == 0 {
 		command = "/bin/sh"
 	}
