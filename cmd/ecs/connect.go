@@ -289,10 +289,14 @@ func ListTasks(c *cli.Context) error {
 	)
 	var options []string
 	for _, task := range tasks {
+		instance := "-"
+		if task.ContainerInstance != nil {
+			instance = *task.ContainerInstance.Ec2InstanceId
+		}
 		options = append(options, fmt.Sprintf(
 			"%-35s\t%-8s\t%-8s\t%-8s\t%s",
 			*task.TaskDefinition.Family, strconv.FormatInt(*task.TaskDefinition.Revision, 10),
-			*task.Status, *task.HealthStatus, *task.ContainerInstance.Ec2InstanceId,
+			*task.Status, *task.HealthStatus, instance,
 		))
 	}
 
@@ -320,7 +324,9 @@ func ListTasks(c *cli.Context) error {
 
 	// Set task and instance
 	c.Set("task", *tasks[taskSelectedIndex].Arn)
-	c.Set("instance", *tasks[taskSelectedIndex].ContainerInstance.Ec2InstanceId)
+	if tasks[taskSelectedIndex].ContainerInstance != nil {
+		c.Set("instance", *tasks[taskSelectedIndex].ContainerInstance.Ec2InstanceId)
+	}
 	return nil
 }
 
