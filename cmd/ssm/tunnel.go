@@ -124,7 +124,6 @@ func Tunnel(c *cli.Context) error {
 func OpenSSHTunnel(c *cli.Context) (*exec.Cmd, error) {
 	// Get parameters
 	profile := c.String("profile")
-	region := c.String("region")
 	instanceID := c.String("instance")
 
 	// Elaborate local port
@@ -141,7 +140,6 @@ func OpenSSHTunnel(c *cli.Context) (*exec.Cmd, error) {
 	args := []string{
 		"ssm", "start-session",
 		"--profile", profile,
-		"--region", region,
 		"--target", instanceID,
 		"--document-name", "AWS-StartPortForwardingSession",
 		"--parameters", "portNumber=22,localPortNumber=" + localPort,
@@ -176,8 +174,8 @@ func OpenTunnelOverSSH(c *cli.Context) error {
 
 	// Check key existence
 	stats, err := os.Stat(key)
-	if err != nil {
-		return cli.Exit("Key file provided does not exist", 1)
+	if err != nil && os.IsNotExist(err) {
+		return cli.Exit(fmt.Sprintf("Key file %s does not exist", key), 1)
 	}
 
 	// Check key permissions
