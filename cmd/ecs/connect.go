@@ -285,13 +285,15 @@ func ListTasks(c *cli.Context) error {
 	header := fmt.Sprintf(
 		"%-35s\t%-8s\t%-8s\t%-8s\t%s",
 		"Task Definition Family", "Revision",
-		"Status", "Health", "Instance ID",
+		"Status", "Health", "Instance ID / ARN",
 	)
 	var options []string
 	for _, task := range tasks {
 		instance := "-"
 		if task.ContainerInstance != nil {
 			instance = *task.ContainerInstance.Ec2InstanceId
+		} else {
+			instance = *task.Arn
 		}
 		options = append(options, fmt.Sprintf(
 			"%-35s\t%-8s\t%-8s\t%-8s\t%s",
@@ -383,14 +385,14 @@ func ListContainer(c *cli.Context) error {
 
 	// Build table
 	header := fmt.Sprintf(
-		"%-35s\t%-12s\t%8s\t%s",
+		"%-35s\t%-40s\t%8s\t%s",
 		"Container Name", "Container ID", "Status", "Image",
 	)
 	var options []string
 	for _, container := range containers {
 		options = append(options, fmt.Sprintf(
-			"%-35s\t%-12s\t%8s\t%s",
-			*container.Name, string(*container.RuntimeId)[0:12], *container.LastStatus, *container.Image,
+			"%-35s\t%-40s\t%8s\t%s",
+			*container.Name, *container.RuntimeId, *container.LastStatus, *container.Image,
 		))
 	}
 

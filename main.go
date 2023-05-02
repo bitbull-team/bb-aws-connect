@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/bitbull-team/bb-aws-connect/cmd/ecs"
@@ -101,7 +102,6 @@ func main() {
 
 	err := app.Run(os.Args)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-		os.Exit(1)
+		log.Fatalf("ERROR: %s", err.Error())
 	}
 }

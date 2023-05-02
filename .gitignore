@@ -1,4 +1,2 @@
 dist/*
-cmd/ssm-run/ssm-run
-cmd/ssm-session/ssm-session
 bb-aws-connect
