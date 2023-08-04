@@ -33,7 +33,7 @@ func NewRunCommand(globalFlags []cli.Flag) *cli.Command {
 			&cli.StringSliceFlag{
 				Name:    "instance",
 				Aliases: []string{"i"},
-				Usage:   "Instace ID (example: i-xxxxxxxxxxxxxxxxx or auto)",
+				Usage:   "Instance ID (example: i-xxxxxxxxxxxxxxxxx or auto)",
 			},
 			&cli.StringFlag{
 				Name:  "file",
@@ -127,13 +127,13 @@ func SelectInstances(c *cli.Context) error {
 
 	// If only one instance is found connect to it
 	if len(instances) == 1 {
-		fmt.Println("Instace auto selected: ", *instances[0].ID)
+		fmt.Println("Instance auto selected: ", *instances[0].ID)
 		c.Set("instance", *instances[0].ID)
 		return nil
 	}
 
 	// Build table
-	header := fmt.Sprintf("%-20s\t%-15s\t%s\t%s", "Instace ID", "IP address", "Environment", "ServiceType")
+	header := fmt.Sprintf("%-20s\t%-15s\t%s\t%s", "Instance ID", "IP address", "Environment", "ServiceType")
 	var options []string
 	for _, instance := range instances {
 		options = append(options, fmt.Sprintf("%-20s\t%-15s\t%-8s\t%s", *instance.ID, *instance.IP, *instance.Environment, *instance.ServiceType))

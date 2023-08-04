@@ -12,8 +12,8 @@ type TagFilter struct {
 	Value string
 }
 
-// Instace is a result of EC2ListInstances
-type Instace struct {
+// Instance is a result of EC2ListInstances
+type Instance struct {
 	ID          *string
 	Name        *string
 	IP          *string
@@ -23,7 +23,7 @@ type Instace struct {
 }
 
 // EC2ListInstances return a list of available instance
-func EC2ListInstances(ses *session.Session, tags []TagFilter) ([]Instace, error) {
+func EC2ListInstances(ses *session.Session, tags []TagFilter) ([]Instance, error) {
 	input := &ec2.DescribeInstancesInput{
 		Filters: []*ec2.Filter{
 			{
@@ -56,7 +56,7 @@ func EC2ListInstances(ses *session.Session, tags []TagFilter) ([]Instace, error)
 	// Create new EC2 client
 	ec2Svc := ec2.New(ses)
 	result, err := ec2Svc.DescribeInstances(input)
-	var formattedInstances []Instace
+	var formattedInstances []Instance
 	if err != nil {
 		return formattedInstances, err
 	}
@@ -81,7 +81,7 @@ func EC2ListInstances(ses *session.Session, tags []TagFilter) ([]Instace, error)
 					projectName = *tag.Value
 				}
 			}
-			formattedInstances = append(formattedInstances, Instace{
+			formattedInstances = append(formattedInstances, Instance{
 				ID:          instance.InstanceId,
 				IP:          instance.PrivateIpAddress,
 				Name:        &tagName,

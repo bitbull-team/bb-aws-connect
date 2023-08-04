@@ -38,7 +38,7 @@ OPTIONS:
    --region value, -r value    AWS region [$AWS_DEFAULT_REGION]
    --service value, -s value   Service Type (example: bastion, frontend, varnish)
    --env value, -e value       Environment (example: test, stage, prod)
-   --instance value, -i value  Instace ID (example: i-xxxxxxxxxxxxxxxxx or auto)
+   --instance value, -i value  Instance ID (example: i-xxxxxxxxxxxxxxxxx or auto)
    --cwd value                 Current working directory (example: /var/www/) (default: "/")
    --user value                User to use in the session (default: "root")
    --shell value               Shell used in session (default: "/bin/bash")
@@ -56,7 +56,7 @@ $ bb-aws-connect ssm connect
 
 ? Select an instance: 
 
-  Instace ID          	IP address     	Environment	ServiceType
+  Instance ID          	IP address     	Environment	ServiceType
   [Use arrows to move, type to filter]
 > i-0f8061bcb996a0a1b 	172.31.2.206   	prod    	varnish
   i-0c9916aa684e69638 	172.31.2.57    	stage   	cron
@@ -79,7 +79,7 @@ $ bb-aws-connect ssm connect -s cron
 
 ? Select an instance: 
 
-  Instace ID          	IP address     	Environment	ServiceType
+  Instance ID          	IP address     	Environment	ServiceType
   [Use arrows to move, type to filter]
 > i-0c9916aa684e69638 	172.31.2.57    	stage   	cron
   i-0d6634056d1f36a8a 	172.31.2.93    	test    	cron
@@ -90,7 +90,7 @@ $ bb-aws-connect ssm connect -s cron
 also filter by "Environment" tag, is only one instance is found will be auto-selected
 ```
 $ bb-aws-connect ssm connect -e stage -s cron
-Instace auto selected: i-0c9916aa684e69638
+Instance auto selected: i-0c9916aa684e69638
 
 Starting session with SessionId: botocore-session-1592822987-0fd0966b96e9fde39
 root@ip-172-31-2-57:/
@@ -115,7 +115,7 @@ OPTIONS:
    --region value, -r value    AWS region [$AWS_DEFAULT_REGION]
    --service value, -s value   Service Type (example: bastion, frontend, varnish)
    --env value, -e value       Environment (example: test, stage, prod)
-   --instance value, -i value  Instace ID (example: i-xxxxxxxxxxxxxxxxx or auto)
+   --instance value, -i value  Instance ID (example: i-xxxxxxxxxxxxxxxxx or auto)
    --file value                Script file path to execute (example: ./my-script.sh)
    --auto-select, -a           Automatically select all instance listed without asking (default: false)
    --help, -h                  show help (default: false)
@@ -131,7 +131,7 @@ $ bb-aws-connect ssm run -e test
 
 ? Select an instance: 
 
-  Instace ID            IP address      Environment     ServiceType
+  Instance ID            IP address      Environment     ServiceType
   [Use arrows to move, space to select, type to filter]
 > [ ]  i-0d6634056d1f36a8a      172.31.2.93     test            cron
   [x]  i-0b8be6c25d48949f9      172.31.3.56     test            ssr
@@ -144,7 +144,7 @@ is not command provided by arguments it will be asked interactively (multiple co
 ```
 ? Select an instance: 
 
-  Instace ID            IP address      Environment     ServiceType
+  Instance ID            IP address      Environment     ServiceType
  i-0b8be6c25d48949f9    172.31.3.56     test            ssr, i-07b032553d8f2c0f7        172.31.4.200    test            bastion
 
 ? Type command to execute:  [Enter 2 empty lines to finish]
@@ -172,7 +172,7 @@ Mon Jun 22 11:02:00 UTC 2020
 one liner command for a single instance
 ```
 $ bb-aws-connect ssm run -e test -s cron "date"
-Instace auto selected:  i-0d6634056d1f36a8a
+Instance auto selected:  i-0d6634056d1f36a8a
 Waiting for command id  456049a5-868e-4320-9c77-3cbfe362dbcd ..
 All commands ends successfully!
 
@@ -244,7 +244,7 @@ OPTIONS:
    --region value, -r value     AWS region [$AWS_DEFAULT_REGION]
    --service value, -s value    Service Type (example: bastion, frontend, varnish)
    --env value, -e value        Environment (example: test, stage, prod)
-   --instance value, -i value   Instace ID (example: i-xxxxxxxxxxxxxxxxx or auto)
+   --instance value, -i value   Instance ID (example: i-xxxxxxxxxxxxxxxxx or auto)
    --auto-select, -a            Automatically select all instance listed without asking (default: false)
    --self, -o                   SSM filter document with owner Self (default: false)
    --private, -t                SSM filter document with owner Private (default: false)
@@ -307,7 +307,7 @@ then will ask for instance (same as `ssm:run` command), and execute it. At the e
 ```
 ? Select an instance: 
 
-  Instace ID            IP address      Environment     ServiceType
+  Instance ID            IP address      Environment     ServiceType
  i-0d6634056d1f36a8a    172.31.2.93     test            cron
 
 Waiting for command id  0c265d5f-fd9f-47a3-b434-ba5b152e1472 ..
@@ -340,7 +340,7 @@ OPTIONS:
    --region value, -r value        AWS region [$AWS_DEFAULT_REGION]
    --service value, -s value       Service Type to connect to (example: bastion, frontend, varnish)
    --env value, -e value           Environment (example: test, stage, prod)
-   --instance value, -i value      Instace ID (example: i-xxxxxxxxxxxxxxxxx or auto)
+   --instance value, -i value      Instance ID (example: i-xxxxxxxxxxxxxxxxx or auto)
    --host value, -o value          Remote host to open tunnel to (example: myexampledb.a1b2c3d4wxyz.us-west-2.rds.amazonaws.com) (default: "localhost")
    --port value, --rp value        Remote port to open tunnel to (example: 22) (default: "22")
    --local-port value, --lp value  Local port to bind to serve tunnel (example: 2222) (default: "2222")
@@ -362,7 +362,7 @@ bb-aws-connect ssm tunnel -s bastion -e test -u fabio.gollinucci
 
 an SSH tunnel will be opened locally
 ```
-Instace auto selected: i-07b032553d8f2c0f7
+Instance auto selected: i-07b032553d8f2c0f7
 SSH tunnel to remote instance opened on local port: 2222
 ```
 
@@ -380,7 +380,7 @@ instance to connect to will be asked interacvly if not provided and second tunne
 ```
 ? Select an instance: 
 
-  Instace ID            IP address      Environment     ServiceType
+  Instance ID            IP address      Environment     ServiceType
  i-0a9f68b9f8d96d0b1    10.0.1.81       stage   
 
 SSH tunnel to remote instance opened on local port: 56789

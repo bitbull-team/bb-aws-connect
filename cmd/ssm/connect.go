@@ -30,7 +30,7 @@ func NewConnectCommand(globalFlags []cli.Flag) *cli.Command {
 			&cli.StringFlag{
 				Name:    "instance",
 				Aliases: []string{"i"},
-				Usage:   "Instace ID (example: i-xxxxxxxxxxxxxxxxx or auto)",
+				Usage:   "Instance ID (example: i-xxxxxxxxxxxxxxxxx or auto)",
 			},
 			&cli.StringFlag{
 				Name:  "cwd",
@@ -113,13 +113,13 @@ func SelectInstance(c *cli.Context) error {
 
 	// If only one instance is found or auto-select mode was used, connect to it
 	if len(instances) == 1 || instanceID == "auto" {
-		fmt.Println("Instace auto selected:", *instances[0].ID)
+		fmt.Println("Instance auto selected:", *instances[0].ID)
 		c.Set("instance", *instances[0].ID)
 		return nil
 	}
 
 	// Build table
-	header := fmt.Sprintf("%-20s\t%-15s\t%-25s", "Instace ID", "IP Address", "Instace Name")
+	header := fmt.Sprintf("%-20s\t%-15s\t%-25s", "Instance ID", "IP Address", "Instance Name")
 	var options []string
 	for _, instance := range instances {
 		options = append(options, fmt.Sprintf("%-20s\t%-15s\t%-25s", *instance.ID, *instance.IP, *instance.Name))
